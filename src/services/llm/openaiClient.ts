@@ -22,7 +22,6 @@ export class OpenAIClient implements LLMClient {
         },
       ],
       temperature: 0.2,
-      max_tokens: 512,
     });
 
     const headers: Record<string, string> = {
@@ -67,6 +66,8 @@ export class OpenAIClient implements LLMClient {
 
 function cleanLLMOutput(text: string): string {
   let cleaned = text.trim();
+  // Strip <think>...</think> chain-of-thought content
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   cleaned = cleaned.replace(/^```(?:latex|tex)?\n?/i, '').replace(/\n?```$/i, '');
   cleaned = cleaned.replace(/^\$\$\s*/, '').replace(/\s*\$\$$/, '');
   cleaned = cleaned.replace(/^\$\s*/, '').replace(/\s*\$$/, '');
