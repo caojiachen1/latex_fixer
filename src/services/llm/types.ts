@@ -2,6 +2,7 @@ export interface LLMClient {
   readonly providerName: string;
   fixFormula(request: FixFormulaRequest): Promise<FixFormulaResponse>;
   testConnection(): Promise<boolean>;
+  listModels(): Promise<string[]>;
 }
 
 export interface FixFormulaRequest {

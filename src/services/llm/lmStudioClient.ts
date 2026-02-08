@@ -49,6 +49,16 @@ export class LMStudioClient implements LLMClient {
       return false;
     }
   }
+
+  async listModels(): Promise<string[]> {
+    const responseText = await proxyLLMRequest(
+      `${this.config.baseUrl}/v1/models`,
+      'GET'
+    );
+
+    const data = JSON.parse(responseText);
+    return data.data.map((m: any) => m.id).sort();
+  }
 }
 
 function cleanLLMOutput(text: string): string {

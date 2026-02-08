@@ -12,13 +12,15 @@ import {
   RadioGroup,
   Radio,
   Field,
+  Combobox,
+  Option,
   Spinner,
   MessageBar,
   MessageBarTitle,
   MessageBarBody,
   tokens,
 } from '@fluentui/react-components';
-import { DismissRegular } from '@fluentui/react-icons';
+import { DismissRegular, ArrowClockwiseRegular } from '@fluentui/react-icons';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useUIStore } from '../../stores/uiStore';
 import { createLLMClient } from '../../services/llm/llmClientFactory';
@@ -31,10 +33,36 @@ export const SettingsDialog: React.FC = () => {
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
 
   const [testing, setTesting] = useState(false);
+  const [fetchingModels, setFetchingModels] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [testResult, setTestResult] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
+
+  const handleFetchModels = useCallback(async () => {
+    setFetchingModels(true);
+    try {
+      const client = createLLMClient();
+      const models = await client.listModels();
+      setAvailableModels(models);
+    } catch (err) {
+      console.error('Failed to fetch models:', err);
+      setAvailableModels([]);
+    } finally {
+      setFetchingModels(false);
+    }
+  }, []);
+
+  // Fetch models when provider changes
+  React.useEffect(() => {
+    // For OpenAI, only fetch if we have an API key (or if it's a custom URL that might not need one)
+    if (settings.llmProvider === 'openai' && !settings.openaiApiKey && settings.openaiBaseUrl === 'https://api.openai.com') {
+      setAvailableModels([]);
+      return;
+    }
+    handleFetchModels();
+  }, [settings.llmProvider, handleFetchModels, settings.openaiApiKey, settings.openaiBaseUrl, settings.ollamaUrl, settings.lmStudioUrl]);
 
   const handleTestConnection = useCallback(async () => {
     setTesting(true);
@@ -116,14 +144,32 @@ export const SettingsDialog: React.FC = () => {
                   </div>
                   <div className="settings-field">
                     <Label htmlFor="openai-model">Model</Label>
-                    <Input
-                      id="openai-model"
-                      value={settings.openaiModel}
-                      onChange={(_, data) =>
-                        updateSettings({ openaiModel: data.value })
-                      }
-                      placeholder="gpt-4o"
-                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Combobox
+                        id="openai-model"
+                        value={settings.openaiModel}
+                        onOptionSelect={(_, data) =>
+                          updateSettings({ openaiModel: data.optionValue })
+                        }
+                        onChange={(e) =>
+                          updateSettings({ openaiModel: e.target.value })
+                        }
+                        placeholder="gpt-4o"
+                        style={{ flex: 1, minWidth: 'auto' }}
+                      >
+                        {availableModels.map((m) => (
+                          <Option key={m} value={m}>
+                            {m}
+                          </Option>
+                        ))}
+                      </Combobox>
+                      <Button
+                        icon={fetchingModels ? <Spinner size="tiny" /> : <ArrowClockwiseRegular />}
+                        onClick={handleFetchModels}
+                        disabled={fetchingModels}
+                        title="Refresh models"
+                      />
+                    </div>
                   </div>
                 </>
               )}
@@ -143,14 +189,32 @@ export const SettingsDialog: React.FC = () => {
                   </div>
                   <div className="settings-field">
                     <Label htmlFor="lms-model">Model</Label>
-                    <Input
-                      id="lms-model"
-                      value={settings.lmStudioModel}
-                      onChange={(_, data) =>
-                        updateSettings({ lmStudioModel: data.value })
-                      }
-                      placeholder="Model name"
-                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Combobox
+                        id="lms-model"
+                        value={settings.lmStudioModel}
+                        onOptionSelect={(_, data) =>
+                          updateSettings({ lmStudioModel: data.optionValue })
+                        }
+                        onChange={(e) =>
+                          updateSettings({ lmStudioModel: e.target.value })
+                        }
+                        placeholder="Model name"
+                        style={{ flex: 1, minWidth: 'auto' }}
+                      >
+                        {availableModels.map((m) => (
+                          <Option key={m} value={m}>
+                            {m}
+                          </Option>
+                        ))}
+                      </Combobox>
+                      <Button
+                        icon={fetchingModels ? <Spinner size="tiny" /> : <ArrowClockwiseRegular />}
+                        onClick={handleFetchModels}
+                        disabled={fetchingModels}
+                        title="Refresh models"
+                      />
+                    </div>
                   </div>
                 </>
               )}
@@ -170,14 +234,32 @@ export const SettingsDialog: React.FC = () => {
                   </div>
                   <div className="settings-field">
                     <Label htmlFor="ollama-model">Model</Label>
-                    <Input
-                      id="ollama-model"
-                      value={settings.ollamaModel}
-                      onChange={(_, data) =>
-                        updateSettings({ ollamaModel: data.value })
-                      }
-                      placeholder="e.g. llama3"
-                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Combobox
+                        id="ollama-model"
+                        value={settings.ollamaModel}
+                        onOptionSelect={(_, data) =>
+                          updateSettings({ ollamaModel: data.optionValue })
+                        }
+                        onChange={(e) =>
+                          updateSettings({ ollamaModel: e.target.value })
+                        }
+                        placeholder="e.g. llama3"
+                        style={{ flex: 1, minWidth: 'auto' }}
+                      >
+                        {availableModels.map((m) => (
+                          <Option key={m} value={m}>
+                            {m}
+                          </Option>
+                        ))}
+                      </Combobox>
+                      <Button
+                        icon={fetchingModels ? <Spinner size="tiny" /> : <ArrowClockwiseRegular />}
+                        onClick={handleFetchModels}
+                        disabled={fetchingModels}
+                        title="Refresh models"
+                      />
+                    </div>
                   </div>
                 </>
               )}

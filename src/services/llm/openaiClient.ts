@@ -62,6 +62,25 @@ export class OpenAIClient implements LLMClient {
       return false;
     }
   }
+
+  async listModels(): Promise<string[]> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.config.apiKey) {
+      headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+    }
+
+    const responseText = await proxyLLMRequest(
+      `${this.config.baseUrl}/v1/models`,
+      'GET',
+      undefined,
+      headers
+    );
+
+    const data = JSON.parse(responseText);
+    return data.data.map((m: any) => m.id).sort();
+  }
 }
 
 function cleanLLMOutput(text: string): string {

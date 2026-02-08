@@ -49,6 +49,16 @@ export class OllamaClient implements LLMClient {
       return false;
     }
   }
+
+  async listModels(): Promise<string[]> {
+    const responseText = await proxyLLMRequest(
+      `${this.config.baseUrl}/api/tags`,
+      'GET'
+    );
+
+    const data = JSON.parse(responseText);
+    return data.models.map((m: any) => m.name).sort();
+  }
 }
 
 function cleanLLMOutput(text: string): string {
