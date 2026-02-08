@@ -8,7 +8,6 @@ import { LoadingOverlay } from '../common/LoadingOverlay';
 import { SettingsDialog } from '../settings/SettingsDialog';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useUIStore } from '../../stores/uiStore';
-import { tokens } from '@fluentui/react-components';
 
 export const AppShell: React.FC = () => {
   const filePath = useDocumentStore((s) => s.filePath);
