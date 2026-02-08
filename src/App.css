@@ -14,8 +14,7 @@ html, body, #root {
 
 /* Sidebar */
 .sidebar {
-  width: 220px;
-  min-width: 220px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 12px;
@@ -29,12 +28,16 @@ html, body, #root {
   font-weight: 600;
   padding: 12px 4px;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow: hidden;
 }
 
 .sidebar-spacer {
@@ -58,8 +61,6 @@ html, body, #root {
 
 /* Split panels */
 .left-panel {
-  flex: 1;
-  min-width: 300px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -67,11 +68,27 @@ html, body, #root {
 }
 
 .right-panel {
-  flex: 1;
-  min-width: 350px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.resizer {
+  width: 4px;
+  cursor: col-resize;
+  background-color: var(--colorNeutralStroke2);
+  transition: background-color 0.2s, width 0.2s;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.resizer:hover {
+  background-color: var(--colorBrandStroke1) !important;
+}
+
+.resizer:active {
+  background-color: var(--colorBrandStroke1) !important;
+  width: 6px !important;
 }
 
 /* MarkdownViewer */

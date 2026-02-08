@@ -12,6 +12,7 @@ import {
   WeatherMoonRegular,
   WeatherSunnyRegular,
   WrenchRegular,
+  TextDescriptionRegular,
 } from '@fluentui/react-icons';
 import { useFileOperations } from '../../hooks/useFileOperations';
 import { useDocumentStore } from '../../stores/documentStore';
@@ -28,6 +29,8 @@ export const Sidebar: React.FC = () => {
   const theme = useSettingsStore((s) => s.theme);
   const toggleTheme = useSettingsStore((s) => s.toggleTheme);
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
+  const isMarkdownVisible = useUIStore((s) => s.isMarkdownVisible);
+  const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
   const { fixAllFormulas } = useLLMFix();
 
   const unfixedErrors = errors.filter((e) => !fixes[e.id]);
@@ -70,6 +73,21 @@ export const Sidebar: React.FC = () => {
             style={{ justifyContent: 'flex-start' }}
           >
             Export Fixed
+          </Button>
+        </Tooltip>
+
+        <Tooltip content={isMarkdownVisible ? "Hide Markdown Viewer" : "Show Markdown Viewer"} relationship="label">
+          <Button
+            appearance="subtle"
+            icon={<TextDescriptionRegular />}
+            onClick={() => setMarkdownVisible(!isMarkdownVisible)}
+            disabled={!filePath}
+            style={{ 
+              justifyContent: 'flex-start',
+              backgroundColor: isMarkdownVisible ? tokens.colorNeutralBackground1Selected : undefined 
+            }}
+          >
+            {isMarkdownVisible ? "Hide Editor" : "Show Editor"}
           </Button>
         </Tooltip>
       </div>

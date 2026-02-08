@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { tokens, ToggleButton } from '@fluentui/react-components';
-import { EyeRegular, CodeRegular } from '@fluentui/react-icons';
+import { tokens, ToggleButton, Button } from '@fluentui/react-components';
+import { EyeRegular, CodeRegular, DismissRegular } from '@fluentui/react-icons';
 import { KaTeXRenderer } from '../preview/KaTeXRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
+import { useUIStore } from '../../stores/uiStore';
 
 export const MarkdownViewer: React.FC = () => {
   const originalContent = useDocumentStore((s) => s.originalContent);
   const errors = useDocumentStore((s) => s.errors);
   const fixes = useDocumentStore((s) => s.fixes);
+  const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
   const [showPreview, setShowPreview] = useState(false);
 
   const highlightedContent = useMemo(() => {
@@ -74,19 +76,30 @@ export const MarkdownViewer: React.FC = () => {
           padding: '4px 8px',
           borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           backgroundColor: tokens.colorNeutralBackground2,
         }}
       >
-        <ToggleButton
-          size="small"
-          appearance="subtle"
-          checked={showPreview}
-          icon={showPreview ? <CodeRegular /> : <EyeRegular />}
-          onClick={() => setShowPreview(!showPreview)}
-        >
-          {showPreview ? 'Source' : 'Preview'}
-        </ToggleButton>
+        <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>EDITOR</span>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <ToggleButton
+            size="small"
+            appearance="subtle"
+            checked={showPreview}
+            icon={showPreview ? <CodeRegular /> : <EyeRegular />}
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? 'Source' : 'Preview'}
+          </ToggleButton>
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<DismissRegular />}
+            onClick={() => setMarkdownVisible(false)}
+            title="Close Editor"
+          />
+        </div>
       </div>
       {showPreview ? (
         <div
