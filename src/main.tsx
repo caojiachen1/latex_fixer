@@ -15,7 +15,7 @@ const Root: React.FC = () => {
   const theme = useSettingsStore((s) => s.theme);
 
   return (
-    <FluentProvider theme={theme === 'dark' ? webDarkTheme : webLightTheme} style={{ height: '100%' }}>
+    <FluentProvider theme={theme === 'dark' ? webDarkTheme : webLightTheme} style={{ height: '100%', background: 'transparent' }}>
       <App />
     </FluentProvider>
   );

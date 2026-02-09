@@ -9,6 +9,8 @@ interface UIState {
   pageSize: number;
   fixingFormulaIds: Set<string>;
   isMarkdownVisible: boolean;
+  isLeftPanelVisible: boolean;
+  isRightPanelVisible: boolean;
   sidebarWidth: number;
   markdownWidth: number;
   selectedErrorId: string | null;
@@ -20,6 +22,8 @@ interface UIState {
   addFixingFormula: (id: string) => void;
   removeFixingFormula: (id: string) => void;
   setMarkdownVisible: (visible: boolean) => void;
+  setLeftPanelVisible: (visible: boolean) => void;
+  setRightPanelVisible: (visible: boolean) => void;
   setSidebarWidth: (width: number) => void;
   setMarkdownWidth: (width: number) => void;
   setSelectedErrorId: (id: string | null) => void;
@@ -34,6 +38,8 @@ export const useUIStore = create<UIState>()((set) => ({
   pageSize: 20,
   fixingFormulaIds: new Set(),
   isMarkdownVisible: true,
+  isLeftPanelVisible: true,
+  isRightPanelVisible: true,
   sidebarWidth: 220,
   markdownWidth: 500,
   selectedErrorId: null,
@@ -64,6 +70,10 @@ export const useUIStore = create<UIState>()((set) => ({
     }),
 
   setMarkdownVisible: (visible) => set({ isMarkdownVisible: visible }),
+
+  setLeftPanelVisible: (visible) => set({ isLeftPanelVisible: visible }),
+
+  setRightPanelVisible: (visible) => set({ isRightPanelVisible: visible }),
 
   setSidebarWidth: (width) => set({ sidebarWidth: Math.max(150, Math.min(width, 500)) }),
 

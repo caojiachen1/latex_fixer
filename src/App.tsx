@@ -4,6 +4,7 @@ import { useDocumentStore } from './stores/documentStore';
 import { useUIStore } from './stores/uiStore';
 import { useLatexParser } from './hooks/useLatexParser';
 import { useFileOperations } from './hooks/useFileOperations';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
   const originalContent = useDocumentStore((s) => s.originalContent);
@@ -13,12 +14,26 @@ function App() {
   const { parseAndValidate } = useLatexParser();
   const { openFile, exportFile } = useFileOperations();
 
-  // Auto-parse when content is loaded
+  // Handle window dragging
   useEffect(() => {
-    if (originalContent) {
-      parseAndValidate();
-    }
-  }, [originalContent, parseAndValidate]);
+    const appWindow = getCurrentWindow();
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        (target.classList.contains('title-bar') || 
+         target.classList.contains('title-bar-center') ||
+         target.closest('.app-icon')) &&
+        !target.closest('.window-control-button') &&
+        !target.closest('.menu-button') &&
+        !target.closest('.panel-toggle-button')
+      ) {
+        appWindow.startDragging();
+      }
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    return () => window.removeEventListener('mousedown', handleMouseDown);
+  }, []);
 
   // Keyboard shortcuts
   const handleKeyDown = useCallback(
@@ -51,6 +66,13 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  // Auto-parse when content is loaded
+  useEffect(() => {
+    if (originalContent) {
+      parseAndValidate();
+    }
+  }, [originalContent, parseAndValidate]);
 
   return <AppShell />;
 }

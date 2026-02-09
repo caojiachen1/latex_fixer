@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { Sidebar } from './Sidebar';
+import { TitleBar } from './TitleBar';
 import { EmptyState } from '../common/EmptyState';
 import { MarkdownViewer } from '../editor/MarkdownViewer';
 import { FormulaErrorList } from '../editor/FormulaErrorList';
@@ -14,39 +14,12 @@ export const AppShell: React.FC = () => {
   const isLoading = useUIStore((s) => s.isLoading);
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
   const isMarkdownVisible = useUIStore((s) => s.isMarkdownVisible);
-  const sidebarWidth = useUIStore((s) => s.sidebarWidth);
+  const isLeftPanelVisible = useUIStore((s) => s.isLeftPanelVisible);
+  const isRightPanelVisible = useUIStore((s) => s.isRightPanelVisible);
   const markdownWidth = useUIStore((s) => s.markdownWidth);
-  const setSidebarWidth = useUIStore((s) => s.setSidebarWidth);
   const setMarkdownWidth = useUIStore((s) => s.setMarkdownWidth);
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleSidebarResize = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
-    // disable text selection while dragging
-    const prevUserSelect = document.body.style.userSelect;
-    document.body.style.userSelect = 'none';
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      const delta = moveEvent.clientX - startX;
-      // clear any accidental selection during drag
-      window.getSelection()?.removeAllRanges();
-      setSidebarWidth(startWidth + delta);
-    };
-
-    const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = prevUserSelect;
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    document.body.style.cursor = 'col-resize';
-  }, [sidebarWidth, setSidebarWidth]);
 
   const handleMarkdownResize = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -77,17 +50,13 @@ export const AppShell: React.FC = () => {
 
   return (
     <div className="app-container" ref={containerRef}>
-      <div style={{ width: sidebarWidth, minWidth: sidebarWidth, display: 'flex' }}>
-        <Sidebar />
-      </div>
-      
-      <div className="resizer" onMouseDown={handleSidebarResize} />
+      <TitleBar />
 
       <div className="main-content">
         {filePath ? (
           <>
             <div className="content-area">
-              {isMarkdownVisible && (
+              {isMarkdownVisible && isLeftPanelVisible && (
                 <>
                   <div className="left-panel" style={{ width: markdownWidth, flex: 'none' }}>
                     <MarkdownViewer />
@@ -95,9 +64,11 @@ export const AppShell: React.FC = () => {
                   <div className="resizer" onMouseDown={handleMarkdownResize} />
                 </>
               )}
-              <div className="right-panel" style={{ flex: 1, minWidth: 200 }}>
-                <FormulaErrorList />
-              </div>
+              {isRightPanelVisible && (
+                <div className="right-panel" style={{ flex: 1, minWidth: 200 }}>
+                  <FormulaErrorList />
+                </div>
+              )}
             </div>
             <StatusBar />
           </>

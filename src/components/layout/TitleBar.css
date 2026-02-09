@@ -1,0 +1,155 @@
+.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  background: transparent;
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  z-index: 1000;
+}
+
+.title-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+}
+
+.title-bar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorNeutralForeground2);
+  pointer-events: none;
+}
+
+.title-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* App Icon */
+.app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+}
+
+/* Menu Bar */
+.menu-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.menu-button {
+  min-width: auto;
+  padding: 4px 12px;
+  height: 28px;
+  font-size: 12px;
+  border-radius: 4px;
+  color: var(--colorNeutralForeground1);
+  transition: all 0.1s ease;
+}
+
+.menu-button:hover {
+  background-color: var(--colorNeutralBackground1Hover);
+}
+
+.menu-button:active {
+  background-color: var(--colorNeutralBackground1Pressed);
+}
+
+.menu-shortcut {
+  margin-left: auto;
+  padding-left: 24px;
+  font-size: 11px;
+  color: var(--colorNeutralForeground3);
+}
+
+/* Panel Toggle Buttons */
+.panel-toggle-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-right: 8px;
+}
+
+.panel-toggle-button {
+  min-width: auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  color: var(--colorNeutralForeground2);
+  transition: all 0.1s ease;
+}
+
+.panel-toggle-button:hover {
+  background-color: var(--colorNeutralBackground1Hover);
+  color: var(--colorNeutralForeground1);
+}
+
+.panel-toggle-button:active {
+  background-color: var(--colorNeutralBackground1Pressed);
+}
+
+/* Window Controls */
+.window-controls {
+  display: flex;
+  height: 32px;
+}
+
+.window-control-button {
+  width: 46px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: default;
+  transition: background-color 0.1s ease;
+  border: none;
+  background: transparent;
+  color: var(--colorNeutralForeground1);
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-width: 46px !important;
+}
+
+.window-control-button:hover {
+  background-color: var(--colorNeutralBackground1Hover) !important;
+}
+
+.window-control-button:active {
+  background-color: var(--colorNeutralBackground1Pressed) !important;
+}
+
+.window-control-close:hover {
+  background-color: #e81123 !important;
+  color: white !important;
+}
+
+.window-control-close:active {
+  background-color: #f1707a !important;
+  color: white !important;
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .title-bar {
+    background: transparent;
+  }
+}
+
+/* Remove old acrylic effect as we use Mica now */
+
+
