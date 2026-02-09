@@ -29,15 +29,21 @@ export const FormulaErrorList: React.FC = () => {
   const setCurrentPage = useUIStore((s) => s.setCurrentPage);
   const pageSize = useUIStore((s) => s.pageSize);
 
+  const sortedErrors = useMemo(() => {
+    return [...errors].sort((a, b) => a.startOffset - b.startOffset);
+  }, [errors]);
+
+  const getErrorIndex = (id: string) => sortedErrors.findIndex((e) => e.id === id) + 1;
+
   const filteredErrors = useMemo(() => {
-    if (!searchQuery) return errors;
+    if (!searchQuery) return sortedErrors;
     const query = searchQuery.toLowerCase();
-    return errors.filter(
+    return sortedErrors.filter(
       (e) =>
         e.raw.toLowerCase().includes(query) ||
         (e.errorMessage && e.errorMessage.toLowerCase().includes(query))
     );
-  }, [errors, searchQuery]);
+  }, [sortedErrors, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredErrors.length / pageSize));
   const paginatedErrors = filteredErrors.slice(
@@ -124,9 +130,15 @@ export const FormulaErrorList: React.FC = () => {
       </div>
 
       <div className="error-list-body">
-        {paginatedErrors.map((error) => (
-          <FormulaErrorCard key={error.id} formula={error} />
-        ))}
+        <div className="error-list-content">
+          {paginatedErrors.map((formula) => (
+            <FormulaErrorCard
+              key={formula.id}
+              formula={formula}
+              index={getErrorIndex(formula.id)}
+            />
+          ))}
+        </div>
       </div>
 
       {totalPages > 1 && (

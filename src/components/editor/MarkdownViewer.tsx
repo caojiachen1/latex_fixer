@@ -49,7 +49,7 @@ export const MarkdownViewer: React.FC = () => {
     const parts: React.ReactNode[] = [];
     let lastEnd = 0;
 
-    sortedErrors.forEach((error) => {
+    sortedErrors.forEach((error, index) => {
       // Text before this error
       if (error.startOffset > lastEnd) {
         parts.push(
@@ -68,7 +68,25 @@ export const MarkdownViewer: React.FC = () => {
           id={`error-${error.id}`}
           className={className}
           title={error.errorMessage || 'LaTeX error'}
+          style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.4em', overflow: 'visible' }}
         >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '0.1em',
+                    left: '-2.0em',
+                  backgroundColor: tokens.colorPaletteRedBackground1,
+                  color: tokens.colorNeutralForegroundOnBrand,
+                  fontSize: '0.7em',
+                  padding: '0 4px',
+                  borderRadius: '4px',
+                  zIndex: 1,
+                  pointerEvents: 'none',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                #{index + 1}
+              </span>
           {originalContent.slice(error.startOffset, error.endOffset)}
         </span>
       );
@@ -181,6 +199,9 @@ function renderMarkdownWithFormulas(
     const id = error ? `error-${error.id}` : undefined;
     const title = error ? (error.errorMessage || 'LaTeX error') : undefined;
 
+    // compute index for this error (if any)
+    const errorIndex = error ? errors.findIndex(e => e.startOffset === error.startOffset) : -1;
+
     // Block $$ formula
     if (markdown.startsWith('$$', i)) {
       if (i > textStart) {
@@ -195,8 +216,11 @@ function renderMarkdownWithFormulas(
             id={id}
             className={className}
             title={title}
-            style={{ margin: '12px 0', textAlign: 'center' }}
+            style={{ margin: '12px 0', textAlign: 'center', position: 'relative', paddingLeft: errorIndex !== -1 ? '1.2em' : undefined, overflow: 'visible' }}
           >
+                  {errorIndex !== -1 && (
+                    <span style={{ position: 'absolute', left: '-2.2em', top: 8, backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.8em', padding: '0 6px', borderRadius: 4, pointerEvents: 'none' }}>#{errorIndex + 1}</span>
+                  )}
             <KaTeXRenderer latex={raw} displayMode />
           </div>
         );
@@ -216,14 +240,17 @@ function renderMarkdownWithFormulas(
         const raw = markdown.slice(i + 2, end);
         parts.push(
           <div 
-            key={key++} 
-            id={id}
-            className={className}
-            title={title}
-            style={{ margin: '12px 0', textAlign: 'center' }}
-          >
-            <KaTeXRenderer latex={raw} displayMode />
-          </div>
+              key={key++} 
+              id={id}
+              className={className}
+              title={title}
+              style={{ margin: '12px 0', textAlign: 'center', position: 'relative', paddingLeft: errorIndex !== -1 ? '1.2em' : undefined, overflow: 'visible' }}
+            >
+              {errorIndex !== -1 && (
+                <span style={{ position: 'absolute', left: '-2.2em', top: 8, backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.8em', padding: '0 6px', borderRadius: 4, pointerEvents: 'none' }}>#{errorIndex + 1}</span>
+              )}
+              <KaTeXRenderer latex={raw} displayMode />
+            </div>
         );
         i = end + 2;
         textStart = i;
@@ -241,7 +268,12 @@ function renderMarkdownWithFormulas(
         const raw = markdown.slice(i + 2, end);
         const content = <KaTeXRenderer latex={raw} />;
         if (error) {
-          parts.push(<span key={key++} id={id} className={className} title={title}>{content}</span>);
+          parts.push(
+            <span key={key++} id={id} className={className} title={title} style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.4em', overflow: 'visible' }}>
+              <span style={{ position: 'absolute', top: '0.1em', left: '-2.0em', backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.7em', padding: '0 4px', borderRadius: '4px', pointerEvents: 'none' }}>#{errorIndex + 1}</span>
+              {content}
+            </span>
+          );
         } else {
           parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
         }
@@ -261,7 +293,12 @@ function renderMarkdownWithFormulas(
         const raw = markdown.slice(i + 1, end);
         const content = <KaTeXRenderer latex={raw} />;
         if (error) {
-          parts.push(<span key={key++} id={id} className={className} title={title}>{content}</span>);
+          parts.push(
+            <span key={key++} id={id} className={className} title={title} style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.6em', overflow: 'visible' }}>
+              <span style={{ position: 'absolute', top: '0.1em', left: '-1.2em', backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.7em', padding: '0 4px', borderRadius: '4px', pointerEvents: 'none' }}>#{errorIndex + 1}</span>
+              {content}
+            </span>
+          );
         } else {
           parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
         }
