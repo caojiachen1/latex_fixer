@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { tokens, ToggleButton, Button } from '@fluentui/react-components';
-import { EyeRegular, CodeRegular, DismissRegular } from '@fluentui/react-icons';
+import { EyeRegular, CodeRegular, DismissRegular, ArrowUpRegular, ArrowDownRegular } from '@fluentui/react-icons';
 import { KaTeXRenderer } from '../preview/KaTeXRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useUIStore } from '../../stores/uiStore';
@@ -11,16 +11,40 @@ export const MarkdownViewer: React.FC = () => {
   const fixes = useDocumentStore((s) => s.fixes);
   const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
   const [showPreview, setShowPreview] = useState(false);
+  const [currentErrorIndex, setCurrentErrorIndex] = useState(-1);
+
+  const sortedErrors = useMemo(() => {
+    return [...errors].sort((a, b) => a.startOffset - b.startOffset);
+  }, [errors]);
+
+  const handleJumpToError = (direction: 'next' | 'prev') => {
+    if (sortedErrors.length === 0) return;
+
+    let nextIndex;
+    if (currentErrorIndex === -1) {
+      nextIndex = direction === 'next' ? 0 : sortedErrors.length - 1;
+    } else {
+      if (direction === 'next') {
+        nextIndex = (currentErrorIndex + 1) % sortedErrors.length;
+      } else {
+        nextIndex = (currentErrorIndex - 1 + sortedErrors.length) % sortedErrors.length;
+      }
+    }
+
+    setCurrentErrorIndex(nextIndex);
+    const error = sortedErrors[nextIndex];
+    // We use a timeout to ensure rendering is complete if we just switched views, 
+    // though here we are likely already in the view.
+    const element = document.getElementById(`error-${error.id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   const highlightedContent = useMemo(() => {
     if (!originalContent || errors.length === 0) {
       return [<span key="all">{originalContent}</span>];
     }
-
-    // Sort errors by offset ascending
-    const sortedErrors = [...errors].sort(
-      (a, b) => a.startOffset - b.startOffset
-    );
 
     const parts: React.ReactNode[] = [];
     let lastEnd = 0;
@@ -41,6 +65,7 @@ export const MarkdownViewer: React.FC = () => {
       parts.push(
         <span
           key={`error-${error.id}`}
+          id={`error-${error.id}`}
           className={className}
           title={error.errorMessage || 'LaTeX error'}
         >
@@ -50,15 +75,6 @@ export const MarkdownViewer: React.FC = () => {
 
       lastEnd = error.endOffset;
     });
-
-    // Remaining text
-    if (lastEnd < originalContent.length) {
-      parts.push(
-        <span key={`text-${lastEnd}`}>
-          {originalContent.slice(lastEnd)}
-        </span>
-      );
-    }
 
     return parts;
   }, [originalContent, errors, fixes]);
@@ -83,6 +99,22 @@ export const MarkdownViewer: React.FC = () => {
       >
         <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>EDITOR</span>
         <div style={{ display: 'flex', gap: '4px' }}>
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<ArrowUpRegular />}
+            onClick={() => handleJumpToError('prev')}
+            disabled={errors.length === 0 || showPreview}
+            title="Previous Error"
+          />
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<ArrowDownRegular />}
+            onClick={() => handleJumpToError('next')}
+            disabled={errors.length === 0 || showPreview}
+            title="Next Error"
+          />
           <ToggleButton
             size="small"
             appearance="subtle"
