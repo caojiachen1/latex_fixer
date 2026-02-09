@@ -22,11 +22,17 @@ export const AppShell: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSidebarResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     const startX = e.clientX;
     const startWidth = sidebarWidth;
+    // disable text selection while dragging
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = 'none';
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
+      // clear any accidental selection during drag
+      window.getSelection()?.removeAllRanges();
       setSidebarWidth(startWidth + delta);
     };
 
@@ -34,6 +40,7 @@ export const AppShell: React.FC = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = prevUserSelect;
     };
 
     document.addEventListener('mousemove', onMouseMove);
@@ -42,11 +49,17 @@ export const AppShell: React.FC = () => {
   }, [sidebarWidth, setSidebarWidth]);
 
   const handleMarkdownResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     const startX = e.clientX;
     const startWidth = markdownWidth;
+    // disable text selection while dragging
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = 'none';
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
+      // clear any accidental selection during drag
+      window.getSelection()?.removeAllRanges();
       setMarkdownWidth(startWidth + delta);
     };
 
@@ -54,6 +67,7 @@ export const AppShell: React.FC = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = prevUserSelect;
     };
 
     document.addEventListener('mousemove', onMouseMove);

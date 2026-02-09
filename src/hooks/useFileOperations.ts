@@ -6,7 +6,6 @@ import { useUIStore } from '../stores/uiStore';
 
 export function useFileOperations() {
   const loadDocument = useDocumentStore((s) => s.loadDocument);
-  const currentContent = useDocumentStore((s) => s.currentContent);
   const filePath = useDocumentStore((s) => s.filePath);
   const setLoading = useUIStore((s) => s.setLoading);
 
@@ -54,14 +53,16 @@ export function useFileOperations() {
       if (!savePath) return;
 
       setLoading(true, 'Exporting...');
-      await writeMarkdownFile(savePath, currentContent);
+      // Read latest content from the store at call time to avoid stale closure values
+      const content = useDocumentStore.getState().currentContent;
+      await writeMarkdownFile(savePath, content);
     } catch (err) {
       console.error('Failed to export file:', err);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, [filePath, currentContent, setLoading]);
+  }, [filePath, setLoading]);
 
   return { openFile, exportFile };
 }
