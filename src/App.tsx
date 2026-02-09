@@ -14,20 +14,26 @@ function App() {
   const { parseAndValidate } = useLatexParser();
   const { openFile, exportFile } = useFileOperations();
 
-  // Handle window dragging
+  // Handle window dragging and double click to maximize
   useEffect(() => {
     const appWindow = getCurrentWindow();
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        (target.classList.contains('title-bar') || 
-         target.classList.contains('title-bar-center') ||
-         target.closest('.app-icon')) &&
-        !target.closest('.window-control-button') &&
-        !target.closest('.menu-button') &&
-        !target.closest('.panel-toggle-button')
-      ) {
-        appWindow.startDragging();
+      
+      // 检查是否点击在标题栏区域，且不在任何按钮或菜单上
+      const isTitleBar = target.closest('.title-bar');
+      const isButton = target.closest('.window-control-button') || 
+                       target.closest('.menu-button') || 
+                       target.closest('.panel-toggle-button');
+
+      if (isTitleBar && !isButton) {
+        // 如果是双击 (detail === 2)，切换最大化状态
+        if (e.detail === 2) {
+          appWindow.toggleMaximize();
+        } else {
+          // 否则开始拖拽
+          appWindow.startDragging();
+        }
       }
     };
 
