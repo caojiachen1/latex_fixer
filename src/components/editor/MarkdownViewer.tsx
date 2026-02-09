@@ -81,8 +81,8 @@ export const MarkdownViewer: React.FC = () => {
 
   const previewContent = useMemo(() => {
     if (!originalContent || !showPreview) return null;
-    return renderMarkdownWithFormulas(originalContent);
-  }, [originalContent, showPreview]);
+    return renderMarkdownWithFormulas(originalContent, errors, fixes);
+  }, [originalContent, showPreview, errors, fixes]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
@@ -104,7 +104,7 @@ export const MarkdownViewer: React.FC = () => {
             appearance="subtle"
             icon={<ArrowUpRegular />}
             onClick={() => handleJumpToError('prev')}
-            disabled={errors.length === 0 || showPreview}
+            disabled={errors.length === 0}
             title="Previous Error"
           />
           <Button
@@ -112,7 +112,7 @@ export const MarkdownViewer: React.FC = () => {
             appearance="subtle"
             icon={<ArrowDownRegular />}
             onClick={() => handleJumpToError('next')}
-            disabled={errors.length === 0 || showPreview}
+            disabled={errors.length === 0}
             title="Next Error"
           />
           <ToggleButton
@@ -152,7 +152,11 @@ export const MarkdownViewer: React.FC = () => {
   );
 };
 
-function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
+function renderMarkdownWithFormulas(
+  markdown: string,
+  errors: any[] = [],
+  fixes: Record<string, any> = {}
+): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
   const len = markdown.length;
   let i = 0;
@@ -169,6 +173,14 @@ function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
       }
     }
 
+    // Check for error at current position
+    const error = errors.find(e => e.startOffset === i);
+    const fix = error ? fixes[error.id] : null;
+    const isFixed = fix?.status === 'accepted';
+    const className = error ? (isFixed ? 'formula-fixed' : 'formula-error') : undefined;
+    const id = error ? `error-${error.id}` : undefined;
+    const title = error ? (error.errorMessage || 'LaTeX error') : undefined;
+
     // Block $$ formula
     if (markdown.startsWith('$$', i)) {
       if (i > textStart) {
@@ -178,7 +190,13 @@ function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
       if (end !== -1) {
         const raw = markdown.slice(i + 2, end);
         parts.push(
-          <div key={key++} style={{ margin: '12px 0', textAlign: 'center' }}>
+          <div 
+            key={key++} 
+            id={id}
+            className={className}
+            title={title}
+            style={{ margin: '12px 0', textAlign: 'center' }}
+          >
             <KaTeXRenderer latex={raw} displayMode />
           </div>
         );
@@ -197,7 +215,13 @@ function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
       if (end !== -1) {
         const raw = markdown.slice(i + 2, end);
         parts.push(
-          <div key={key++} style={{ margin: '12px 0', textAlign: 'center' }}>
+          <div 
+            key={key++} 
+            id={id}
+            className={className}
+            title={title}
+            style={{ margin: '12px 0', textAlign: 'center' }}
+          >
             <KaTeXRenderer latex={raw} displayMode />
           </div>
         );
@@ -215,7 +239,12 @@ function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
       const end = markdown.indexOf('\\)', i + 2);
       if (end !== -1) {
         const raw = markdown.slice(i + 2, end);
-        parts.push(<KaTeXRenderer key={key++} latex={raw} />);
+        const content = <KaTeXRenderer latex={raw} />;
+        if (error) {
+          parts.push(<span key={key++} id={id} className={className} title={title}>{content}</span>);
+        } else {
+          parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
+        }
         i = end + 2;
         textStart = i;
         continue;
@@ -230,7 +259,12 @@ function renderMarkdownWithFormulas(markdown: string): React.ReactNode[] {
           parts.push(<span key={key++}>{markdown.slice(textStart, i)}</span>);
         }
         const raw = markdown.slice(i + 1, end);
-        parts.push(<KaTeXRenderer key={key++} latex={raw} />);
+        const content = <KaTeXRenderer latex={raw} />;
+        if (error) {
+          parts.push(<span key={key++} id={id} className={className} title={title}>{content}</span>);
+        } else {
+          parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
+        }
         i = end + 1;
         textStart = i;
         continue;

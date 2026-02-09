@@ -104,7 +104,8 @@ html, body, #root {
   word-wrap: break-word;
 }
 
-.markdown-viewer .formula-error {
+.markdown-viewer .formula-error,
+.preview-pane .formula-error {
   background-color: rgba(255, 0, 0, 0.1);
   border: 1px solid rgba(255, 0, 0, 0.3);
   border-radius: 3px;
@@ -112,11 +113,13 @@ html, body, #root {
   cursor: pointer;
 }
 
-.markdown-viewer .formula-error:hover {
+.markdown-viewer .formula-error:hover,
+.preview-pane .formula-error:hover {
   background-color: rgba(255, 0, 0, 0.2);
 }
 
-.markdown-viewer .formula-fixed {
+.markdown-viewer .formula-fixed,
+.preview-pane .formula-fixed {
   background-color: rgba(0, 180, 0, 0.1);
   border: 1px solid rgba(0, 180, 0, 0.3);
   border-radius: 3px;
