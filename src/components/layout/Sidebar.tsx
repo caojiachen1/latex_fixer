@@ -82,8 +82,6 @@ export const Sidebar: React.FC = () => {
         </Tooltip>
       </div>
 
-      <Divider />
-
       <div className="sidebar-spacer" />
 
       <Divider />
