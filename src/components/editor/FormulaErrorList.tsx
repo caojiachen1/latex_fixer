@@ -29,6 +29,7 @@ export const FormulaErrorList: React.FC = () => {
   const setCurrentPage = useUIStore((s) => s.setCurrentPage);
   const pageSize = useUIStore((s) => s.pageSize);
   const selectedErrorId = useUIStore((s) => s.selectedErrorId);
+  const lastSelectedErrorId = React.useRef<string | null>(null);
 
   const sortedErrors = useMemo(() => {
     return [...errors].sort((a, b) => a.startOffset - b.startOffset);
@@ -36,9 +37,9 @@ export const FormulaErrorList: React.FC = () => {
 
   const getErrorIndex = (id: string) => sortedErrors.findIndex((e) => e.id === id) + 1;
 
-  // 当选中的错误不在当前页时，自动跳转到包含该错误的页面
+  // 当选中的错误发生变化且不在当前页时，自动跳转到包含该错误的页面
   useEffect(() => {
-    if (selectedErrorId && !searchQuery) {
+    if (selectedErrorId && selectedErrorId !== lastSelectedErrorId.current && !searchQuery) {
       const errorIndex = sortedErrors.findIndex((e) => e.id === selectedErrorId);
       if (errorIndex !== -1) {
         const errorPage = Math.floor(errorIndex / pageSize) + 1;
@@ -47,6 +48,7 @@ export const FormulaErrorList: React.FC = () => {
         }
       }
     }
+    lastSelectedErrorId.current = selectedErrorId;
   }, [selectedErrorId, sortedErrors, pageSize, currentPage, setCurrentPage, searchQuery]);
 
   const filteredErrors = useMemo(() => {

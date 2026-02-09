@@ -34,6 +34,7 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
   const rejectFix = useDocumentStore((s) => s.rejectFix);
   const fixingFormulaIds = useUIStore((s) => s.fixingFormulaIds);
   const selectedErrorId = useUIStore((s) => s.selectedErrorId);
+  const setSelectedErrorId = useUIStore((s) => s.setSelectedErrorId);
   const { fixFormula } = useLLMFix();
   const [error, setError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -114,7 +115,9 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
       style={{
         transition: 'box-shadow 0.2s',
         boxShadow: selectedErrorId === formula.id ? `0 0 0 2px ${tokens.colorBrandStroke1}` : undefined,
+        cursor: 'pointer',
       }}
+      onClick={() => setSelectedErrorId(formula.id)}
     >
       <div
         className="error-card-header"
