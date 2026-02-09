@@ -11,6 +11,7 @@ interface UIState {
   isMarkdownVisible: boolean;
   sidebarWidth: number;
   markdownWidth: number;
+  selectedErrorId: string | null;
 
   setLoading: (loading: boolean, message?: string) => void;
   setSettingsOpen: (open: boolean) => void;
@@ -21,6 +22,7 @@ interface UIState {
   setMarkdownVisible: (visible: boolean) => void;
   setSidebarWidth: (width: number) => void;
   setMarkdownWidth: (width: number) => void;
+  setSelectedErrorId: (id: string | null) => void;
 }
 
 export const useUIStore = create<UIState>()((set) => ({
@@ -34,6 +36,7 @@ export const useUIStore = create<UIState>()((set) => ({
   isMarkdownVisible: true,
   sidebarWidth: 220,
   markdownWidth: 500,
+  selectedErrorId: null,
 
   setLoading: (loading, message = '') =>
     set({ isLoading: loading, loadingMessage: message }),
@@ -43,6 +46,8 @@ export const useUIStore = create<UIState>()((set) => ({
   setSearchQuery: (query) => set({ searchQuery: query, currentPage: 1 }),
 
   setCurrentPage: (page) => set({ currentPage: page }),
+
+  setSelectedErrorId: (id) => set({ selectedErrorId: id }),
 
   addFixingFormula: (id) =>
     set((state) => {

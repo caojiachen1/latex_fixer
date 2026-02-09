@@ -10,6 +10,7 @@ export const MarkdownViewer: React.FC = () => {
   const errors = useDocumentStore((s) => s.errors);
   const fixes = useDocumentStore((s) => s.fixes);
   const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
+  const setSelectedErrorId = useUIStore((s) => s.setSelectedErrorId);
   const [showPreview, setShowPreview] = useState(false);
   const [currentErrorIndex, setCurrentErrorIndex] = useState(-1);
 
@@ -33,6 +34,10 @@ export const MarkdownViewer: React.FC = () => {
 
     setCurrentErrorIndex(nextIndex);
     const error = sortedErrors[nextIndex];
+    
+    // 更新全局选中状态，以便右侧错误列表同步
+    setSelectedErrorId(error.id);
+    
     // We use a timeout to ensure rendering is complete if we just switched views, 
     // though here we are likely already in the view.
     const element = document.getElementById(`error-${error.id}`);

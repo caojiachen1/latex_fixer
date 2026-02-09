@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import {
   Card,
   Button,
@@ -33,14 +33,23 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
   const acceptFix = useDocumentStore((s) => s.acceptFix);
   const rejectFix = useDocumentStore((s) => s.rejectFix);
   const fixingFormulaIds = useUIStore((s) => s.fixingFormulaIds);
+  const selectedErrorId = useUIStore((s) => s.selectedErrorId);
   const { fixFormula } = useLLMFix();
   const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedLatex, setEditedLatex] = useState('');
 
   const fix = fixes[formula.id];
   const isFixing = fixingFormulaIds.has(formula.id);
+
+  // 当从Markdown编辑器选中此错误时，滚动到此卡片
+  useEffect(() => {
+    if (selectedErrorId === formula.id && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [selectedErrorId, formula.id]);
 
   const handleFix = useCallback(async () => {
     setError(null);
@@ -98,7 +107,15 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
   }[formula.delimiterType];
 
   return (
-    <Card className="error-card" size="small">
+    <Card 
+      ref={cardRef}
+      className="error-card" 
+      size="small"
+      style={{
+        transition: 'box-shadow 0.2s',
+        boxShadow: selectedErrorId === formula.id ? `0 0 0 2px ${tokens.colorBrandStroke1}` : undefined,
+      }}
+    >
       <div
         className="error-card-header"
         style={{ color: tokens.colorNeutralForeground3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
   Input,
   Button,
@@ -28,12 +28,26 @@ export const FormulaErrorList: React.FC = () => {
   const currentPage = useUIStore((s) => s.currentPage);
   const setCurrentPage = useUIStore((s) => s.setCurrentPage);
   const pageSize = useUIStore((s) => s.pageSize);
+  const selectedErrorId = useUIStore((s) => s.selectedErrorId);
 
   const sortedErrors = useMemo(() => {
     return [...errors].sort((a, b) => a.startOffset - b.startOffset);
   }, [errors]);
 
   const getErrorIndex = (id: string) => sortedErrors.findIndex((e) => e.id === id) + 1;
+
+  // 当选中的错误不在当前页时，自动跳转到包含该错误的页面
+  useEffect(() => {
+    if (selectedErrorId && !searchQuery) {
+      const errorIndex = sortedErrors.findIndex((e) => e.id === selectedErrorId);
+      if (errorIndex !== -1) {
+        const errorPage = Math.floor(errorIndex / pageSize) + 1;
+        if (errorPage !== currentPage) {
+          setCurrentPage(errorPage);
+        }
+      }
+    }
+  }, [selectedErrorId, sortedErrors, pageSize, currentPage, setCurrentPage, searchQuery]);
 
   const filteredErrors = useMemo(() => {
     if (!searchQuery) return sortedErrors;
