@@ -84,8 +84,6 @@ export const Sidebar: React.FC = () => {
 
       <div className="sidebar-spacer" />
 
-      <Divider />
-
       <div className="sidebar-section">
         <Tooltip content="Settings" relationship="label">
           <Button
