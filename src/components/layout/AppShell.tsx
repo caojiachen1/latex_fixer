@@ -57,13 +57,18 @@ export const AppShell: React.FC = () => {
           <>
             <div className="content-area">
               {isMarkdownVisible && isLeftPanelVisible && (
-                <>
-                  <div className="left-panel" style={{ width: markdownWidth, flex: 'none' }}>
-                    <MarkdownViewer />
-                  </div>
-                  <div className="resizer" onMouseDown={handleMarkdownResize} />
-                </>
+                <div 
+                  className="left-panel" 
+                  style={isRightPanelVisible ? { width: markdownWidth, flex: 'none' } : { flex: 1 }}
+                >
+                  <MarkdownViewer />
+                </div>
               )}
+              
+              {isMarkdownVisible && isLeftPanelVisible && isRightPanelVisible && (
+                <div className="resizer" onMouseDown={handleMarkdownResize} />
+              )}
+
               {isRightPanelVisible && (
                 <div className="right-panel" style={{ flex: 1, minWidth: 200 }}>
                   <FormulaErrorList />
