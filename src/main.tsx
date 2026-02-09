@@ -6,6 +6,11 @@ import App from './App';
 import 'katex/dist/katex.min.css';
 import './App.css';
 
+// 禁用 web 视图的右键菜单（防止在应用内弹出默认上下文菜单）
+window.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});
+
 const Root: React.FC = () => {
   const theme = useSettingsStore((s) => s.theme);
 
