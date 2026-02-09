@@ -104,6 +104,35 @@ html, body, #root {
   word-wrap: break-word;
 }
 
+/* Custom scrollbar for markdown and preview panes */
+.markdown-viewer,
+.preview-pane {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150,150,150,0.35) transparent;
+}
+
+/* Webkit-based browsers (Chromium, Edge) */
+.markdown-viewer::-webkit-scrollbar,
+.preview-pane::-webkit-scrollbar {
+  width: 16px; /* 稍微粗一点 */
+}
+.markdown-viewer::-webkit-scrollbar-track,
+.preview-pane::-webkit-scrollbar-track {
+  background: transparent; /* 保持背景透明，避免白色条 */
+}
+.markdown-viewer::-webkit-scrollbar-thumb,
+.preview-pane::-webkit-scrollbar-thumb {
+  background-color: rgba(120,120,120,0.42);
+  border-radius: 10px;
+  border: 4px solid transparent; /* creates padding around thumb */
+  background-clip: padding-box;
+}
+.markdown-viewer::-webkit-scrollbar-thumb:hover,
+.preview-pane::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(120,120,120,0.68);
+}
+
 .markdown-viewer .formula-error,
 .preview-pane .formula-error {
   background-color: rgba(255, 0, 0, 0.1);
