@@ -12,6 +12,8 @@ import {
   ChevronLeftRegular,
   ChevronRightRegular,
 } from '@fluentui/react-icons';
+import { WrenchRegular } from '@fluentui/react-icons';
+import { useLLMFix } from '../../hooks/useLLMFix';
 import { FormulaErrorCard } from './FormulaErrorCard';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useUIStore } from '../../stores/uiStore';
@@ -49,6 +51,8 @@ export const FormulaErrorList: React.FC = () => {
   const acceptedCount = Object.values(fixes).filter(
     (f) => f.status === 'accepted'
   ).length;
+  const { fixAllFormulas } = useLLMFix();
+  const unfixedErrors = errors.filter((e) => !fixes[e.id]);
 
   if (errors.length === 0) {
     return (
@@ -81,6 +85,16 @@ export const FormulaErrorList: React.FC = () => {
           <Badge appearance="filled" color="danger">
             {errors.length} errors
           </Badge>
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<WrenchRegular />}
+            onClick={async () => await fixAllFormulas(unfixedErrors)}
+            disabled={unfixedErrors.length === 0}
+            style={{ marginLeft: 8 }}
+          >
+            Fix All ({unfixedErrors.length})
+          </Button>
           {acceptedCount > 0 && (
             <Badge appearance="filled" color="success">
               {acceptedCount} accepted

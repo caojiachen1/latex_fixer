@@ -11,29 +11,23 @@ import {
   SettingsRegular,
   WeatherMoonRegular,
   WeatherSunnyRegular,
-  WrenchRegular,
   TextDescriptionRegular,
 } from '@fluentui/react-icons';
 import { useFileOperations } from '../../hooks/useFileOperations';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useUIStore } from '../../stores/uiStore';
-import { useLLMFix } from '../../hooks/useLLMFix';
 
 export const Sidebar: React.FC = () => {
   const { openFile, exportFile } = useFileOperations();
   const filePath = useDocumentStore((s) => s.filePath);
-  const errors = useDocumentStore((s) => s.errors);
-  const fixes = useDocumentStore((s) => s.fixes);
   const applyAcceptedFixes = useDocumentStore((s) => s.applyAcceptedFixes);
   const theme = useSettingsStore((s) => s.theme);
   const toggleTheme = useSettingsStore((s) => s.toggleTheme);
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
   const isMarkdownVisible = useUIStore((s) => s.isMarkdownVisible);
   const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
-  const { fixAllFormulas } = useLLMFix();
 
-  const unfixedErrors = errors.filter((e) => !fixes[e.id]);
 
   const handleExport = useCallback(async () => {
     applyAcceptedFixes();
@@ -41,10 +35,6 @@ export const Sidebar: React.FC = () => {
     await new Promise((r) => setTimeout(r, 50));
     await exportFile();
   }, [applyAcceptedFixes, exportFile]);
-
-  const handleFixAll = useCallback(async () => {
-    await fixAllFormulas(unfixedErrors);
-  }, [fixAllFormulas, unfixedErrors]);
 
   return (
     <div className="sidebar" style={{ backgroundColor: tokens.colorNeutralBackground2 }}>
@@ -93,20 +83,6 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <Divider />
-
-      <div className="sidebar-section">
-        <Tooltip content="Fix all errors with LLM" relationship="label">
-          <Button
-            appearance="subtle"
-            icon={<WrenchRegular />}
-            onClick={handleFixAll}
-            disabled={unfixedErrors.length === 0}
-            style={{ justifyContent: 'flex-start' }}
-          >
-            Fix All ({unfixedErrors.length})
-          </Button>
-        </Tooltip>
-      </div>
 
       <div className="sidebar-spacer" />
 
