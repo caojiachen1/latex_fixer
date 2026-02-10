@@ -83,8 +83,8 @@ export const TitleBar: React.FC = () => {
   };
 
   return (
-    <div className="title-bar">
-      <div className="title-bar-left">
+    <div className="title-bar" data-tauri-drag-region>
+      <div className="title-bar-left" data-tauri-drag-region>
         {/* App Icon */}
         <div className="app-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -105,6 +105,7 @@ export const TitleBar: React.FC = () => {
                 appearance="subtle" 
                 size="small" 
                 className="menu-button"
+                data-tauri-drag-region="false"
                 onMouseEnter={() => handleMouseEnter('file')}
               >
                 File
@@ -134,6 +135,7 @@ export const TitleBar: React.FC = () => {
                 appearance="subtle" 
                 size="small" 
                 className="menu-button"
+                data-tauri-drag-region="false"
                 onMouseEnter={() => handleMouseEnter('view')}
               >
                 View
@@ -184,6 +186,7 @@ export const TitleBar: React.FC = () => {
                 appearance="subtle" 
                 size="small" 
                 className="menu-button"
+                data-tauri-drag-region="false"
                 onMouseEnter={() => handleMouseEnter('help')}
               >
                 Help
@@ -202,7 +205,7 @@ export const TitleBar: React.FC = () => {
         LaTeX Fixer
       </div>
 
-      <div className="title-bar-right">
+      <div className="title-bar-right" data-tauri-drag-region>
         {/* Panel Toggle Buttons */}
         <div className="panel-toggle-buttons">
           <Tooltip content={isLeftPanelVisible ? "Hide Left Panel" : "Show Left Panel"} relationship="description">
@@ -210,6 +213,7 @@ export const TitleBar: React.FC = () => {
               appearance="subtle"
               size="small"
               className="panel-toggle-button"
+              data-tauri-drag-region="false"
               icon={isLeftPanelVisible ? <PanelLeftContract24Regular /> : <PanelLeft24Regular />}
               onClick={() => setLeftPanelVisible(!isLeftPanelVisible)}
             />
@@ -219,6 +223,7 @@ export const TitleBar: React.FC = () => {
               appearance="subtle"
               size="small"
               className="panel-toggle-button"
+              data-tauri-drag-region="false"
               icon={isRightPanelVisible ? <PanelRightContract24Regular /> : <PanelRight24Regular />}
               onClick={() => setRightPanelVisible(!isRightPanelVisible)}
             />
@@ -232,6 +237,7 @@ export const TitleBar: React.FC = () => {
               appearance="subtle"
               size="small"
               className="window-control-button"
+              data-tauri-drag-region="false"
               icon={<Subtract24Regular />}
               onClick={handleMinimize}
             />
@@ -242,6 +248,7 @@ export const TitleBar: React.FC = () => {
               size="small"
               className="window-control-button"
               id="maximize-button"
+              data-tauri-drag-region="false"
               icon={isMaximized ? <SquareMultiple24Regular /> : <Square24Regular />}
               onClick={handleMaximize}
             />
@@ -251,6 +258,7 @@ export const TitleBar: React.FC = () => {
               appearance="subtle"
               size="small"
               className="window-control-button window-control-close"
+              data-tauri-drag-region="false"
               icon={<Dismiss24Regular />}
               onClick={handleClose}
             />

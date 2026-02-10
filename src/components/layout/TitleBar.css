@@ -9,6 +9,7 @@
   -webkit-user-select: none;
   position: relative;
   z-index: 1000;
+  -webkit-app-region: drag;
 }
 
 .title-bar-left {
@@ -31,7 +32,7 @@
 .title-bar-right {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 12px;
 }
 
 /* App Icon */
@@ -59,6 +60,7 @@
   border-radius: 4px;
   color: var(--colorNeutralForeground1);
   transition: all 0.1s ease;
+  -webkit-app-region: no-drag;
 }
 
 .menu-button:hover {
@@ -92,6 +94,7 @@
   border-radius: 4px;
   color: var(--colorNeutralForeground2);
   transition: all 0.1s ease;
+  -webkit-app-region: no-drag;
 }
 
 .panel-toggle-button:hover {
@@ -107,6 +110,8 @@
 .window-controls {
   display: flex;
   height: 32px;
+  gap: 4px;
+  -webkit-app-region: no-drag;
 }
 
 .window-control-button {
@@ -123,6 +128,7 @@
   border-radius: 0 !important;
   padding: 0 !important;
   min-width: 46px !important;
+  -webkit-app-region: no-drag;
 }
 
 .window-control-button:hover {
