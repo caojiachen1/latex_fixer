@@ -6,7 +6,6 @@ import {
   MenuPopover,
   MenuList,
   MenuItem,
-  MenuSplitGroup,
   MenuItemCheckbox,
   Tooltip,
   tokens
