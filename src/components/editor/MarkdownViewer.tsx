@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { tokens, ToggleButton, Button } from '@fluentui/react-components';
 import { EyeRegular, CodeRegular, DismissRegular, ArrowUpRegular, ArrowDownRegular } from '@fluentui/react-icons';
 import { KaTeXRenderer } from '../preview/KaTeXRenderer';
@@ -11,12 +11,30 @@ export const MarkdownViewer: React.FC = () => {
   const fixes = useDocumentStore((s) => s.fixes);
   const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
   const setSelectedErrorId = useUIStore((s) => s.setSelectedErrorId);
+  const selectedErrorId = useUIStore((s) => s.selectedErrorId);
   const [showPreview, setShowPreview] = useState(false);
   const [currentErrorIndex, setCurrentErrorIndex] = useState(-1);
 
   const sortedErrors = useMemo(() => {
     return [...errors].sort((a, b) => a.startOffset - b.startOffset);
   }, [errors]);
+
+  // 当全局选中的错误发生变化时，滚动到对应位置
+  useEffect(() => {
+    if (selectedErrorId) {
+      // 更新本地索引以保持同步
+      const index = sortedErrors.findIndex(e => e.id === selectedErrorId);
+      if (index !== -1) {
+        setCurrentErrorIndex(index);
+      }
+
+      // 滚动到元素
+      const element = document.getElementById(`error-${selectedErrorId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [selectedErrorId, sortedErrors]);
 
   const handleJumpToError = (direction: 'next' | 'prev') => {
     if (sortedErrors.length === 0) return;
