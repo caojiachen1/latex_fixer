@@ -28,6 +28,7 @@ import './TitleBar.css';
 
 export const TitleBar: React.FC = () => {
   const [isMaximized, setIsMaximized] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const { 
     isLeftPanelVisible, 
     isRightPanelVisible, 
@@ -73,6 +74,20 @@ export const TitleBar: React.FC = () => {
     toggleTheme();
   };
 
+  const handleMenuOpenChange = (menuName: string, open: boolean) => {
+    if (open) {
+      setOpenMenu(menuName);
+    } else if (openMenu === menuName) {
+      setOpenMenu(null);
+    }
+  };
+
+  const handleMouseEnter = (menuName: string) => {
+    if (openMenu !== null) {
+      setOpenMenu(menuName);
+    }
+  };
+
   return (
     <div className="title-bar">
       <div className="title-bar-left">
@@ -87,9 +102,17 @@ export const TitleBar: React.FC = () => {
         {/* Menu Bar */}
         <div className="menu-bar">
           {/* File Menu */}
-          <Menu>
+          <Menu 
+            open={openMenu === 'file'} 
+            onOpenChange={(_, data) => handleMenuOpenChange('file', data.open)}
+          >
             <MenuTrigger disableButtonEnhancement>
-              <Button appearance="subtle" size="small" className="menu-button">
+              <Button 
+                appearance="subtle" 
+                size="small" 
+                className="menu-button"
+                onMouseEnter={() => handleMouseEnter('file')}
+              >
                 File
               </Button>
             </MenuTrigger>
@@ -108,9 +131,17 @@ export const TitleBar: React.FC = () => {
           </Menu>
 
           {/* View Menu */}
-          <Menu>
+          <Menu 
+            open={openMenu === 'view'} 
+            onOpenChange={(_, data) => handleMenuOpenChange('view', data.open)}
+          >
             <MenuTrigger disableButtonEnhancement>
-              <Button appearance="subtle" size="small" className="menu-button">
+              <Button 
+                appearance="subtle" 
+                size="small" 
+                className="menu-button"
+                onMouseEnter={() => handleMouseEnter('view')}
+              >
                 View
               </Button>
             </MenuTrigger>
@@ -153,9 +184,17 @@ export const TitleBar: React.FC = () => {
           </Menu>
 
           {/* Help Menu */}
-          <Menu>
+          <Menu 
+            open={openMenu === 'help'} 
+            onOpenChange={(_, data) => handleMenuOpenChange('help', data.open)}
+          >
             <MenuTrigger disableButtonEnhancement>
-              <Button appearance="subtle" size="small" className="menu-button">
+              <Button 
+                appearance="subtle" 
+                size="small" 
+                className="menu-button"
+                onMouseEnter={() => handleMouseEnter('help')}
+              >
                 Help
               </Button>
             </MenuTrigger>
