@@ -6,6 +6,8 @@ import {
   MenuPopover,
   MenuList,
   MenuItem,
+  MenuSplitGroup,
+  MenuItemCheckbox,
   Tooltip,
   tokens
 } from '@fluentui/react-components';
@@ -117,9 +119,36 @@ export const TitleBar: React.FC = () => {
             </MenuTrigger>
             <MenuPopover>
               <MenuList>
-                <MenuItem onClick={() => setMarkdownVisible(!isMarkdownVisible)}>
-                  {isMarkdownVisible ? 'Hide' : 'Show'} Editor
-                </MenuItem>
+                <Menu>
+                  <MenuTrigger disableButtonEnhancement>
+                    <MenuItem>Appearance</MenuItem>
+                  </MenuTrigger>
+                  <MenuPopover>
+                    <MenuList 
+                      checkedValues={{
+                        left: isLeftPanelVisible ? ['left'] : [],
+                        right: isRightPanelVisible ? ['right'] : [],
+                        editor: isMarkdownVisible ? ['editor'] : []
+                      }}
+                      onCheckedValueChange={(_, { name, checkedItems }) => {
+                        const isChecked = checkedItems.length > 0;
+                        if (name === 'left') setLeftPanelVisible(isChecked);
+                        if (name === 'right') setRightPanelVisible(isChecked);
+                        if (name === 'editor') setMarkdownVisible(isChecked);
+                      }}
+                    >
+                      <MenuItemCheckbox name="left" value="left">
+                        Show Left Panel
+                      </MenuItemCheckbox>
+                      <MenuItemCheckbox name="right" value="right">
+                        Show Right Panel
+                      </MenuItemCheckbox>
+                      <MenuItemCheckbox name="editor" value="editor">
+                        Show Editor
+                      </MenuItemCheckbox>
+                    </MenuList>
+                  </MenuPopover>
+                </Menu>
                 <MenuItem onClick={handleToggleTheme}>
                   Switch to {theme === 'light' ? 'Dark' : 'Light'} Theme
                 </MenuItem>
