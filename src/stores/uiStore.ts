@@ -4,6 +4,7 @@ interface UIState {
   isLoading: boolean;
   loadingMessage: string;
   isSettingsOpen: boolean;
+  isAboutOpen: boolean;
   searchQuery: string;
   currentPage: number;
   pageSize: number;
@@ -17,6 +18,7 @@ interface UIState {
 
   setLoading: (loading: boolean, message?: string) => void;
   setSettingsOpen: (open: boolean) => void;
+  setAboutOpen: (open: boolean) => void;
   setSearchQuery: (query: string) => void;
   setCurrentPage: (page: number) => void;
   addFixingFormula: (id: string) => void;
@@ -33,6 +35,7 @@ export const useUIStore = create<UIState>()((set) => ({
   isLoading: false,
   loadingMessage: '',
   isSettingsOpen: false,
+  isAboutOpen: false,
   searchQuery: '',
   currentPage: 1,
   pageSize: 20,
@@ -48,6 +51,8 @@ export const useUIStore = create<UIState>()((set) => ({
     set({ isLoading: loading, loadingMessage: message }),
 
   setSettingsOpen: (open) => set({ isSettingsOpen: open }),
+
+  setAboutOpen: (open) => set({ isAboutOpen: open }),
 
   setSearchQuery: (query) => set({ searchQuery: query, currentPage: 1 }),
 

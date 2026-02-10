@@ -27,7 +27,16 @@ import './TitleBar.css';
 
 export const TitleBar: React.FC = () => {
   const [isMaximized, setIsMaximized] = useState(false);
-  const { isLeftPanelVisible, isRightPanelVisible, isMarkdownVisible, setLeftPanelVisible, setRightPanelVisible, setMarkdownVisible, setSettingsOpen } = useUIStore();
+  const { 
+    isLeftPanelVisible, 
+    isRightPanelVisible, 
+    isMarkdownVisible, 
+    setLeftPanelVisible, 
+    setRightPanelVisible, 
+    setMarkdownVisible, 
+    setSettingsOpen,
+    setAboutOpen
+  } = useUIStore();
   const { openFile, exportFile } = useFileOperations();
   const { theme, toggleTheme } = useSettingsStore();
   const appWindow = getCurrentWindow();
@@ -131,8 +140,7 @@ export const TitleBar: React.FC = () => {
             </MenuTrigger>
             <MenuPopover>
               <MenuList>
-                <MenuItem>About LaTeX Fixer</MenuItem>
-                <MenuItem>Documentation</MenuItem>
+                <MenuItem onClick={() => setAboutOpen(true)}>About LaTeX Fixer</MenuItem>
               </MenuList>
             </MenuPopover>
           </Menu>

@@ -6,6 +6,7 @@ import { FormulaErrorList } from '../editor/FormulaErrorList';
 import { StatusBar } from '../common/StatusBar';
 import { LoadingOverlay } from '../common/LoadingOverlay';
 import { SettingsDialog } from '../settings/SettingsDialog';
+import { AboutDialog } from '../settings/AboutDialog';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useUIStore } from '../../stores/uiStore';
 
@@ -13,6 +14,7 @@ export const AppShell: React.FC = () => {
   const filePath = useDocumentStore((s) => s.filePath);
   const isLoading = useUIStore((s) => s.isLoading);
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
+  const isAboutOpen = useUIStore((s) => s.isAboutOpen);
   const isMarkdownVisible = useUIStore((s) => s.isMarkdownVisible);
   const isLeftPanelVisible = useUIStore((s) => s.isLeftPanelVisible);
   const isRightPanelVisible = useUIStore((s) => s.isRightPanelVisible);
@@ -83,6 +85,7 @@ export const AppShell: React.FC = () => {
       </div>
       {isLoading && <LoadingOverlay />}
       {isSettingsOpen && <SettingsDialog />}
+      {isAboutOpen && <AboutDialog />}
     </div>
   );
 };
