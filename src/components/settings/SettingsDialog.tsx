@@ -95,6 +95,7 @@ export const SettingsDialog: React.FC = () => {
               appearance="subtle"
               icon={<DismissRegular />}
               onClick={() => setSettingsOpen(false)}
+              style={{ position: 'relative', top: '-30px' }}
             />
           }
         >
@@ -294,8 +295,8 @@ export const SettingsDialog: React.FC = () => {
             </div>
           </DialogContent>
         </DialogBody>
-
-        <DialogActions>
+        
+        <DialogActions style={{ marginTop: '20px' }}>
           <Button appearance="primary" onClick={() => setSettingsOpen(false)}>
             Done
           </Button>
