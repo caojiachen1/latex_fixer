@@ -45,12 +45,42 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
   const fix = fixes[formula.id];
   const isFixing = fixingFormulaIds.has(formula.id);
 
+  const scrollCardIntoView = useCallback(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const container = card.closest('.error-list-body') as HTMLElement | null;
+    if (!container) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const relativeTop = cardRect.top - containerRect.top + container.scrollTop;
+    const relativeBottom = relativeTop + card.offsetHeight;
+    const viewTop = container.scrollTop;
+    const viewBottom = container.scrollTop + container.clientHeight;
+
+    if (relativeTop < viewTop) {
+      container.scrollTo({
+        top: Math.max(0, relativeTop),
+        behavior: 'smooth',
+      });
+    } else if (relativeBottom > viewBottom) {
+      container.scrollTo({
+        top: Math.min(container.scrollHeight - container.clientHeight, relativeBottom - container.clientHeight),
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
   // Scroll to this card when this error is selected from the Markdown editor
   useEffect(() => {
-    if (selectedErrorId === formula.id && cardRef.current) {
-      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (selectedErrorId === formula.id) {
+      scrollCardIntoView();
     }
-  }, [selectedErrorId, formula.id]);
+  }, [selectedErrorId, formula.id, scrollCardIntoView]);
 
   const handleFix = useCallback(async () => {
     setError(null);

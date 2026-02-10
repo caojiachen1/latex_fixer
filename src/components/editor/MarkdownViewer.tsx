@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { tokens, ToggleButton, Button, Tooltip } from '@fluentui/react-components';
 import { EyeRegular, CodeRegular, DismissRegular, ArrowUpRegular, ArrowDownRegular } from '@fluentui/react-icons';
 import { KaTeXRenderer } from '../preview/KaTeXRenderer';
@@ -19,22 +19,47 @@ export const MarkdownViewer: React.FC = () => {
     return [...errors].sort((a, b) => a.startOffset - b.startOffset);
   }, [errors]);
 
-  // Scroll to the corresponding position when the globally selected error changes
-  useEffect(() => {
-    if (selectedErrorId) {
-      // Update local index to keep in sync
-      const index = sortedErrors.findIndex(e => e.id === selectedErrorId);
-      if (index !== -1) {
-        setCurrentErrorIndex(index);
-      }
+  const scrollElementIntoView = useCallback((element: HTMLElement | null) => {
+    if (!element) return;
 
-      // Scroll to the element
-      const element = document.getElementById(`error-${selectedErrorId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    const container = element.closest('.markdown-viewer, .preview-pane') as HTMLElement | null;
+    if (!container) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
     }
-  }, [selectedErrorId, sortedErrors]);
+
+    const padding = 8;
+    const elementRect = element.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const relativeTop = elementRect.top - containerRect.top + container.scrollTop;
+    const relativeBottom = relativeTop + element.offsetHeight;
+    const viewTop = container.scrollTop + padding;
+    const viewBottom = container.scrollTop + container.clientHeight - padding;
+
+    if (relativeTop < viewTop) {
+      container.scrollTo({
+        top: Math.max(0, relativeTop - padding),
+        behavior: 'smooth',
+      });
+    } else if (relativeBottom > viewBottom) {
+      container.scrollTo({
+        top: Math.min(container.scrollHeight - container.clientHeight, relativeBottom - container.clientHeight + padding),
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!selectedErrorId) return;
+
+    const index = sortedErrors.findIndex((e) => e.id === selectedErrorId);
+    if (index !== -1) {
+      setCurrentErrorIndex(index);
+    }
+
+    const element = document.getElementById(`error-${selectedErrorId}`);
+    scrollElementIntoView(element as HTMLElement | null);
+  }, [selectedErrorId, sortedErrors, scrollElementIntoView]);
 
   const handleJumpToError = (direction: 'next' | 'prev') => {
     if (sortedErrors.length === 0) return;
@@ -56,12 +81,8 @@ export const MarkdownViewer: React.FC = () => {
     // Update global selected state to sync with right error list
     setSelectedErrorId(error.id);
     
-    // We use a timeout to ensure rendering is complete if we just switched views, 
-    // though here we are likely already in the view.
     const element = document.getElementById(`error-${error.id}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    scrollElementIntoView(element as HTMLElement | null);
   };
 
   const handleCloseFile = () => {
