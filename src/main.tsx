@@ -6,7 +6,7 @@ import App from './App';
 import 'katex/dist/katex.min.css';
 import './App.css';
 
-// 禁用 web 视图的右键菜单（防止在应用内弹出默认上下文菜单）
+// Disable the right-click context menu in the webview (to prevent default context menu from appearing inside the app)
 window.addEventListener('contextmenu', (e) => {
   e.preventDefault();
 });

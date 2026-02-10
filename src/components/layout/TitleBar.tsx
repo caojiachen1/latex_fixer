@@ -23,7 +23,6 @@ import {
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useUIStore } from '../../stores/uiStore';
 import { useFileOperations } from '../../hooks/useFileOperations';
-import { useSettingsStore } from '../../stores/settingsStore';
 import './TitleBar.css';
 
 export const TitleBar: React.FC = () => {
@@ -38,7 +37,6 @@ export const TitleBar: React.FC = () => {
     setAboutOpen
   } = useUIStore();
   const { openFile, exportFile } = useFileOperations();
-  const { theme, toggleTheme } = useSettingsStore();
   const appWindow = getCurrentWindow();
 
   useEffect(() => {
@@ -68,10 +66,6 @@ export const TitleBar: React.FC = () => {
 
   const handleClose = async () => {
     await appWindow.close();
-  };
-
-  const handleToggleTheme = () => {
-    toggleTheme();
   };
 
   const handleMenuOpenChange = (menuName: string, open: boolean) => {
@@ -172,9 +166,6 @@ export const TitleBar: React.FC = () => {
                     </MenuList>
                   </MenuPopover>
                 </Menu>
-                <MenuItem onClick={handleToggleTheme}>
-                  Switch to {theme === 'light' ? 'Dark' : 'Light'} Theme
-                </MenuItem>
                 <MenuItem onClick={() => setSettingsOpen(true)}>
                   Settings
                   <span className="menu-shortcut">Ctrl+,</span>

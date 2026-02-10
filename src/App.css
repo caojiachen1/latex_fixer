@@ -84,11 +84,11 @@ html, body, #root {
 /* Webkit-based browsers (Chromium, Edge) */
 .markdown-viewer::-webkit-scrollbar,
 .preview-pane::-webkit-scrollbar {
-  width: 16px; /* 稍微粗一点 */
+  width: 16px; /* Slightly thicker */
 }
 .markdown-viewer::-webkit-scrollbar-track,
 .preview-pane::-webkit-scrollbar-track {
-  background: transparent; /* 保持背景透明，避免白色条 */
+  background: transparent; /* Keep background transparent to avoid white bars */
 }
 .markdown-viewer::-webkit-scrollbar-thumb,
 .preview-pane::-webkit-scrollbar-thumb {

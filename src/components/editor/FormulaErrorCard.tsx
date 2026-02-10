@@ -45,7 +45,7 @@ export const FormulaErrorCard: React.FC<Props> = ({ formula, index }) => {
   const fix = fixes[formula.id];
   const isFixing = fixingFormulaIds.has(formula.id);
 
-  // 当从Markdown编辑器选中此错误时，滚动到此卡片
+  // Scroll to this card when this error is selected from the Markdown editor
   useEffect(() => {
     if (selectedErrorId === formula.id && cardRef.current) {
       cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });

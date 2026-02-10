@@ -20,18 +20,18 @@ function App() {
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       
-      // 检查是否点击在标题栏区域，且不在任何按钮或菜单上
+      // Check if clicked in the title bar area and not on any buttons or menus
       const isTitleBar = target.closest('.title-bar');
       const isButton = target.closest('.window-control-button') || 
                        target.closest('.menu-button') || 
                        target.closest('.panel-toggle-button');
 
       if (isTitleBar && !isButton) {
-        // 如果是双击 (detail === 2)，切换最大化状态
+        // If double-click (detail === 2), toggle maximize state
         if (e.detail === 2) {
           appWindow.toggleMaximize();
         } else {
-          // 否则开始拖拽
+          // Otherwise start dragging
           appWindow.startDragging();
         }
       }

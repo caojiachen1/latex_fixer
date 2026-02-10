@@ -19,16 +19,16 @@ export const MarkdownViewer: React.FC = () => {
     return [...errors].sort((a, b) => a.startOffset - b.startOffset);
   }, [errors]);
 
-  // 当全局选中的错误发生变化时，滚动到对应位置
+  // Scroll to the corresponding position when the globally selected error changes
   useEffect(() => {
     if (selectedErrorId) {
-      // 更新本地索引以保持同步
+      // Update local index to keep in sync
       const index = sortedErrors.findIndex(e => e.id === selectedErrorId);
       if (index !== -1) {
         setCurrentErrorIndex(index);
       }
 
-      // 滚动到元素
+      // Scroll to the element
       const element = document.getElementById(`error-${selectedErrorId}`);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -53,7 +53,7 @@ export const MarkdownViewer: React.FC = () => {
     setCurrentErrorIndex(nextIndex);
     const error = sortedErrors[nextIndex];
     
-    // 更新全局选中状态，以便右侧错误列表同步
+    // Update global selected state to sync with right error list
     setSelectedErrorId(error.id);
     
     // We use a timeout to ensure rendering is complete if we just switched views, 

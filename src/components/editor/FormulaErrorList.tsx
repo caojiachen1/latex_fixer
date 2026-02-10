@@ -37,7 +37,7 @@ export const FormulaErrorList: React.FC = () => {
 
   const getErrorIndex = (id: string) => sortedErrors.findIndex((e) => e.id === id) + 1;
 
-  // 当选中的错误发生变化且不在当前页时，自动跳转到包含该错误的页面
+  // When the selected error changes and is not on the current page, automatically jump to the page containing that error
   useEffect(() => {
     if (selectedErrorId && selectedErrorId !== lastSelectedErrorId.current && !searchQuery) {
       const errorIndex = sortedErrors.findIndex((e) => e.id === selectedErrorId);
