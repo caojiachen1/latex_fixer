@@ -32,10 +32,8 @@ export const TitleBar: React.FC = () => {
   const { 
     isLeftPanelVisible, 
     isRightPanelVisible, 
-    isMarkdownVisible, 
     setLeftPanelVisible, 
     setRightPanelVisible, 
-    setMarkdownVisible, 
     setSettingsOpen,
     setAboutOpen
   } = useUIStore();
@@ -127,14 +125,12 @@ export const TitleBar: React.FC = () => {
                     <MenuList 
                       checkedValues={{
                         left: isLeftPanelVisible ? ['left'] : [],
-                        right: isRightPanelVisible ? ['right'] : [],
-                        editor: isMarkdownVisible ? ['editor'] : []
+                        right: isRightPanelVisible ? ['right'] : []
                       }}
                       onCheckedValueChange={(_, { name, checkedItems }) => {
                         const isChecked = checkedItems.length > 0;
                         if (name === 'left') setLeftPanelVisible(isChecked);
                         if (name === 'right') setRightPanelVisible(isChecked);
-                        if (name === 'editor') setMarkdownVisible(isChecked);
                       }}
                     >
                       <MenuItemCheckbox name="left" value="left">
@@ -142,9 +138,6 @@ export const TitleBar: React.FC = () => {
                       </MenuItemCheckbox>
                       <MenuItemCheckbox name="right" value="right">
                         Show Right Panel
-                      </MenuItemCheckbox>
-                      <MenuItemCheckbox name="editor" value="editor">
-                        Show Editor
                       </MenuItemCheckbox>
                     </MenuList>
                   </MenuPopover>

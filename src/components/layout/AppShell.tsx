@@ -15,7 +15,6 @@ export const AppShell: React.FC = () => {
   const isLoading = useUIStore((s) => s.isLoading);
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
   const isAboutOpen = useUIStore((s) => s.isAboutOpen);
-  const isMarkdownVisible = useUIStore((s) => s.isMarkdownVisible);
   const isLeftPanelVisible = useUIStore((s) => s.isLeftPanelVisible);
   const isRightPanelVisible = useUIStore((s) => s.isRightPanelVisible);
   const markdownWidth = useUIStore((s) => s.markdownWidth);
@@ -58,7 +57,7 @@ export const AppShell: React.FC = () => {
         {filePath ? (
           <>
             <div className="content-area">
-              {isMarkdownVisible && isLeftPanelVisible && (
+              {isLeftPanelVisible && (
                 <div 
                   className="left-panel" 
                   style={isRightPanelVisible ? { width: markdownWidth, flex: 'none' } : { flex: 1 }}
@@ -67,7 +66,7 @@ export const AppShell: React.FC = () => {
                 </div>
               )}
               
-              {isMarkdownVisible && isLeftPanelVisible && isRightPanelVisible && (
+              {isLeftPanelVisible && isRightPanelVisible && (
                 <div className="resizer" onMouseDown={handleMarkdownResize} />
               )}
 

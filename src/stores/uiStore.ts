@@ -9,7 +9,6 @@ interface UIState {
   currentPage: number;
   pageSize: number;
   fixingFormulaIds: Set<string>;
-  isMarkdownVisible: boolean;
   isLeftPanelVisible: boolean;
   isRightPanelVisible: boolean;
   sidebarWidth: number;
@@ -23,7 +22,6 @@ interface UIState {
   setCurrentPage: (page: number) => void;
   addFixingFormula: (id: string) => void;
   removeFixingFormula: (id: string) => void;
-  setMarkdownVisible: (visible: boolean) => void;
   setLeftPanelVisible: (visible: boolean) => void;
   setRightPanelVisible: (visible: boolean) => void;
   setSidebarWidth: (width: number) => void;
@@ -40,7 +38,6 @@ export const useUIStore = create<UIState>()((set) => ({
   currentPage: 1,
   pageSize: 20,
   fixingFormulaIds: new Set(),
-  isMarkdownVisible: true,
   isLeftPanelVisible: true,
   isRightPanelVisible: true,
   sidebarWidth: 220,
@@ -73,8 +70,6 @@ export const useUIStore = create<UIState>()((set) => ({
       next.delete(id);
       return { fixingFormulaIds: next };
     }),
-
-  setMarkdownVisible: (visible) => set({ isMarkdownVisible: visible }),
 
   setLeftPanelVisible: (visible) => set({ isLeftPanelVisible: visible }),
 

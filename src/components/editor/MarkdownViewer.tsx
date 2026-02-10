@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { tokens, ToggleButton, Button } from '@fluentui/react-components';
+import { tokens, ToggleButton, Button, Tooltip } from '@fluentui/react-components';
 import { EyeRegular, CodeRegular, DismissRegular, ArrowUpRegular, ArrowDownRegular } from '@fluentui/react-icons';
 import { KaTeXRenderer } from '../preview/KaTeXRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
@@ -9,7 +9,7 @@ export const MarkdownViewer: React.FC = () => {
   const originalContent = useDocumentStore((s) => s.originalContent);
   const errors = useDocumentStore((s) => s.errors);
   const fixes = useDocumentStore((s) => s.fixes);
-  const setMarkdownVisible = useUIStore((s) => s.setMarkdownVisible);
+  const resetDocument = useDocumentStore((s) => s.reset);
   const setSelectedErrorId = useUIStore((s) => s.setSelectedErrorId);
   const selectedErrorId = useUIStore((s) => s.selectedErrorId);
   const [showPreview, setShowPreview] = useState(false);
@@ -62,6 +62,11 @@ export const MarkdownViewer: React.FC = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+  };
+
+  const handleCloseFile = () => {
+    resetDocument();
+    setSelectedErrorId(null);
   };
 
   const highlightedContent = useMemo(() => {
@@ -165,13 +170,14 @@ export const MarkdownViewer: React.FC = () => {
           >
             {showPreview ? 'Source' : 'Preview'}
           </ToggleButton>
-          <Button
-            size="small"
-            appearance="subtle"
-            icon={<DismissRegular />}
-            onClick={() => setMarkdownVisible(false)}
-            title="Close Editor"
-          />
+          <Tooltip content="Close file" relationship="label">
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={<DismissRegular />}
+              onClick={handleCloseFile}
+            />
+          </Tooltip>
         </div>
       </div>
       {showPreview ? (
