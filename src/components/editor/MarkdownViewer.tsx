@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { tokens, ToggleButton, Button, Tooltip } from '@fluentui/react-components';
 import { EyeRegular, CodeRegular, DismissRegular, ArrowUpRegular, ArrowDownRegular } from '@fluentui/react-icons';
-import { KaTeXRenderer } from '../preview/KaTeXRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { renderMarkdownWithFormulas } from '../../utils/markdownRenderer';
 
 export const MarkdownViewer: React.FC = () => {
   const originalContent = useDocumentStore((s) => s.originalContent);
@@ -15,9 +16,7 @@ export const MarkdownViewer: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [currentErrorIndex, setCurrentErrorIndex] = useState(-1);
 
-  const sortedErrors = useMemo(() => {
-    return [...errors].sort((a, b) => a.startOffset - b.startOffset);
-  }, [errors]);
+  const sortedErrors = useMemo(() => [...errors].sort((a, b) => a.startOffset - b.startOffset), [errors]);
 
   const scrollElementIntoView = useCallback((element: HTMLElement | null) => {
     if (!element) return;
@@ -68,19 +67,15 @@ export const MarkdownViewer: React.FC = () => {
     if (currentErrorIndex === -1) {
       nextIndex = direction === 'next' ? 0 : sortedErrors.length - 1;
     } else {
-      if (direction === 'next') {
-        nextIndex = (currentErrorIndex + 1) % sortedErrors.length;
-      } else {
-        nextIndex = (currentErrorIndex - 1 + sortedErrors.length) % sortedErrors.length;
-      }
+      nextIndex = direction === 'next'
+        ? (currentErrorIndex + 1) % sortedErrors.length
+        : (currentErrorIndex - 1 + sortedErrors.length) % sortedErrors.length;
     }
 
     setCurrentErrorIndex(nextIndex);
     const error = sortedErrors[nextIndex];
-    
-    // Update global selected state to sync with right error list
     setSelectedErrorId(error.id);
-    
+
     const element = document.getElementById(`error-${error.id}`);
     scrollElementIntoView(element as HTMLElement | null);
   };
@@ -99,7 +94,6 @@ export const MarkdownViewer: React.FC = () => {
     let lastEnd = 0;
 
     sortedErrors.forEach((error, index) => {
-      // Text before this error
       if (error.startOffset > lastEnd) {
         parts.push(
           <span key={`text-${lastEnd}`}>
@@ -119,23 +113,23 @@ export const MarkdownViewer: React.FC = () => {
           title={error.errorMessage || 'LaTeX error'}
           style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.4em', overflow: 'visible' }}
         >
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '0.1em',
-                    left: '-2.0em',
-                  backgroundColor: tokens.colorPaletteRedBackground1,
-                  color: tokens.colorNeutralForegroundOnBrand,
-                  fontSize: '0.7em',
-                  padding: '0 4px',
-                  borderRadius: '4px',
-                  zIndex: 1,
-                  pointerEvents: 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                #{index + 1}
-              </span>
+          <span
+            style={{
+              position: 'absolute',
+              top: '0.1em',
+              left: '-2.0em',
+              backgroundColor: tokens.colorPaletteRedBackground1,
+              color: tokens.colorNeutralForegroundOnBrand,
+              fontSize: '0.7em',
+              padding: '0 4px',
+              borderRadius: '4px',
+              zIndex: 1,
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            #{index + 1}
+          </span>
           {originalContent.slice(error.startOffset, error.endOffset)}
         </span>
       );
@@ -143,13 +137,23 @@ export const MarkdownViewer: React.FC = () => {
       lastEnd = error.endOffset;
     });
 
+    if (lastEnd < originalContent.length) {
+      parts.push(<span key={`tail-${lastEnd}`}>{originalContent.slice(lastEnd)}</span>);
+    }
+
     return parts;
-  }, [originalContent, errors, fixes]);
+  }, [originalContent, errors, fixes, sortedErrors]);
+
+  const debouncedContent = useDebouncedValue(originalContent, showPreview ? 200 : 0);
 
   const previewContent = useMemo(() => {
-    if (!originalContent || !showPreview) return null;
-    return renderMarkdownWithFormulas(originalContent, errors, fixes);
-  }, [originalContent, showPreview, errors, fixes]);
+    if (!debouncedContent || !showPreview) return null;
+    return renderMarkdownWithFormulas(debouncedContent, {
+      errors,
+      fixes,
+      lazyLoad: showPreview,
+    });
+  }, [debouncedContent, showPreview, errors, fixes]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
@@ -202,169 +206,14 @@ export const MarkdownViewer: React.FC = () => {
         </div>
       </div>
       {showPreview ? (
-        <div
-          className="preview-pane"
-          style={{ backgroundColor: tokens.colorNeutralBackground1 }}
-        >
+        <div className="preview-pane" style={{ backgroundColor: tokens.colorNeutralBackground1 }}>
           {previewContent}
         </div>
       ) : (
-        <div
-          className="markdown-viewer"
-          style={{ backgroundColor: tokens.colorNeutralBackground1 }}
-        >
+        <div className="markdown-viewer" style={{ backgroundColor: tokens.colorNeutralBackground1 }}>
           {highlightedContent}
         </div>
       )}
     </div>
   );
 };
-
-function renderMarkdownWithFormulas(
-  markdown: string,
-  errors: any[] = [],
-  fixes: Record<string, any> = {}
-): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const len = markdown.length;
-  let i = 0;
-  let textStart = 0;
-  let key = 0;
-
-  while (i < len) {
-    // Skip code blocks
-    if (markdown.startsWith('```', i)) {
-      const end = markdown.indexOf('```', i + 3);
-      if (end !== -1) {
-        i = end + 3;
-        continue;
-      }
-    }
-
-    // Check for error at current position
-    const error = errors.find(e => e.startOffset === i);
-    const fix = error ? fixes[error.id] : null;
-    const isFixed = fix?.status === 'accepted';
-    const className = error ? (isFixed ? 'formula-fixed' : 'formula-error') : undefined;
-    const id = error ? `error-${error.id}` : undefined;
-    const title = error ? (error.errorMessage || 'LaTeX error') : undefined;
-
-    // compute index for this error (if any)
-    const errorIndex = error ? errors.findIndex(e => e.startOffset === error.startOffset) : -1;
-
-    // Block $$ formula
-    if (markdown.startsWith('$$', i)) {
-      if (i > textStart) {
-        parts.push(<span key={key++}>{markdown.slice(textStart, i)}</span>);
-      }
-      const end = markdown.indexOf('$$', i + 2);
-      if (end !== -1) {
-        const raw = markdown.slice(i + 2, end);
-        parts.push(
-          <div 
-            key={key++} 
-            id={id}
-            className={className}
-            title={title}
-            style={{ margin: '12px 0', textAlign: 'center', position: 'relative', paddingLeft: errorIndex !== -1 ? '1.2em' : undefined, overflow: 'visible' }}
-          >
-                  {errorIndex !== -1 && (
-                    <span style={{ position: 'absolute', left: '-2.2em', top: 8, backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.8em', padding: '0 6px', borderRadius: 4, pointerEvents: 'none' }}>#{errorIndex + 1}</span>
-                  )}
-            <KaTeXRenderer latex={raw} displayMode />
-          </div>
-        );
-        i = end + 2;
-        textStart = i;
-        continue;
-      }
-    }
-
-    // Block \[...\]
-    if (markdown.startsWith('\\[', i)) {
-      if (i > textStart) {
-        parts.push(<span key={key++}>{markdown.slice(textStart, i)}</span>);
-      }
-      const end = markdown.indexOf('\\]', i + 2);
-      if (end !== -1) {
-        const raw = markdown.slice(i + 2, end);
-        parts.push(
-          <div 
-              key={key++} 
-              id={id}
-              className={className}
-              title={title}
-              style={{ margin: '12px 0', textAlign: 'center', position: 'relative', paddingLeft: errorIndex !== -1 ? '1.2em' : undefined, overflow: 'visible' }}
-            >
-              {errorIndex !== -1 && (
-                <span style={{ position: 'absolute', left: '-2.2em', top: 8, backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.8em', padding: '0 6px', borderRadius: 4, pointerEvents: 'none' }}>#{errorIndex + 1}</span>
-              )}
-              <KaTeXRenderer latex={raw} displayMode />
-            </div>
-        );
-        i = end + 2;
-        textStart = i;
-        continue;
-      }
-    }
-
-    // Inline \(...\)
-    if (markdown.startsWith('\\(', i)) {
-      if (i > textStart) {
-        parts.push(<span key={key++}>{markdown.slice(textStart, i)}</span>);
-      }
-      const end = markdown.indexOf('\\)', i + 2);
-      if (end !== -1) {
-        const raw = markdown.slice(i + 2, end);
-        const content = <KaTeXRenderer latex={raw} />;
-        if (error) {
-          parts.push(
-            <span key={key++} id={id} className={className} title={title} style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.4em', overflow: 'visible' }}>
-              <span style={{ position: 'absolute', top: '0.1em', left: '-2.0em', backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.7em', padding: '0 4px', borderRadius: '4px', pointerEvents: 'none' }}>#{errorIndex + 1}</span>
-              {content}
-            </span>
-          );
-        } else {
-          parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
-        }
-        i = end + 2;
-        textStart = i;
-        continue;
-      }
-    }
-
-    // Inline $ formula
-    if (markdown[i] === '$' && (i === 0 || markdown[i - 1] !== '\\')) {
-      const end = markdown.indexOf('$', i + 1);
-      if (end !== -1 && end > i + 1) {
-        if (i > textStart) {
-          parts.push(<span key={key++}>{markdown.slice(textStart, i)}</span>);
-        }
-        const raw = markdown.slice(i + 1, end);
-        const content = <KaTeXRenderer latex={raw} />;
-        if (error) {
-          parts.push(
-            <span key={key++} id={id} className={className} title={title} style={{ position: 'relative', display: 'inline-block', paddingLeft: '0.6em', overflow: 'visible' }}>
-              <span style={{ position: 'absolute', top: '0.1em', left: '-1.2em', backgroundColor: tokens.colorPaletteRedBackground1, color: tokens.colorNeutralForegroundOnBrand, fontSize: '0.7em', padding: '0 4px', borderRadius: '4px', pointerEvents: 'none' }}>#{errorIndex + 1}</span>
-              {content}
-            </span>
-          );
-        } else {
-          parts.push(<React.Fragment key={key++}>{content}</React.Fragment>);
-        }
-        i = end + 1;
-        textStart = i;
-        continue;
-      }
-    }
-
-    i++;
-  }
-
-  // Remaining text
-  if (textStart < len) {
-    parts.push(<span key={key++}>{markdown.slice(textStart)}</span>);
-  }
-
-  return parts;
-}
