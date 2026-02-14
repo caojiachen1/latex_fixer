@@ -19,3 +19,8 @@ pub async fn write_markdown_file(path: String, content: String) -> Result<(), St
     fs::write(&path, &content).map_err(|e| format!("Failed to write file: {}", e))?;
     Ok(())
 }
+
+#[tauri::command]
+pub fn get_startup_args() -> Vec<String> {
+    std::env::args().skip(1).collect()
+}

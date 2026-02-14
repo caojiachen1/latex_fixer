@@ -1,4 +1,6 @@
 import { useEffect, useCallback } from 'react';
+import { listen } from '@tauri-apps/api/event';
+import { readMarkdownFile, getStartupArgs } from './services/tauri/commands';
 import { AppShell } from './components/layout/AppShell';
 import { useDocumentStore } from './stores/documentStore';
 import { useUIStore } from './stores/uiStore';
@@ -8,9 +10,11 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
   const originalContent = useDocumentStore((s) => s.originalContent);
+  const loadDocument = useDocumentStore((s) => s.loadDocument);
   const filePath = useDocumentStore((s) => s.filePath);
   const applyAcceptedFixes = useDocumentStore((s) => s.applyAcceptedFixes);
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
+  const setLoading = useUIStore((s) => s.setLoading);
   const { parseAndValidate } = useLatexParser();
   const { openFile, exportFile } = useFileOperations();
 
@@ -79,6 +83,61 @@ function App() {
       parseAndValidate();
     }
   }, [originalContent, parseAndValidate]);
+
+  // Listen for files passed from the OS (e.g., when a user drags a file onto the exe)
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    (async () => {
+      // `listen` returns an UnlistenFn (a function) which we can call to stop listening.
+      const un = await listen<string>('open-file', async (event) => {
+        const path = event.payload;
+        if (!path) return;
+        try {
+          setLoading(true, 'Loading file...');
+          const file = await readMarkdownFile(path);
+          loadDocument(file.path, file.content);
+        } catch (err) {
+          console.error('Failed to open file from OS:', err);
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      unlisten = un;
+    })();
+
+    return () => {
+      if (unlisten) {
+        try {
+          unlisten();
+        } catch {}
+      }
+    };
+  }, [loadDocument, setLoading]);
+
+  // On startup, explicitly ask backend for any startup args in case events were emitted before listener attached
+  useEffect(() => {
+    (async () => {
+      try {
+        const args = await getStartupArgs();
+        if (args && args.length > 0) {
+          for (const path of args) {
+            try {
+              setLoading(true, 'Loading file...');
+              const file = await readMarkdownFile(path);
+              loadDocument(file.path, file.content);
+            } catch (err) {
+              console.error('Failed to open startup file:', err);
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to get startup args:', err);
+      }
+    })();
+  }, [loadDocument, setLoading]);
 
   return <AppShell />;
 }

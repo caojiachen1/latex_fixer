@@ -21,3 +21,7 @@ export async function proxyLLMRequest(
 ): Promise<string> {
   return invoke<string>('proxy_llm_request', { url, method, body, headers });
 }
+
+export async function getStartupArgs(): Promise<string[]> {
+  return invoke<string[]>('get_startup_args');
+}
