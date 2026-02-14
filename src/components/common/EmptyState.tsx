@@ -13,7 +13,7 @@ export const EmptyState: React.FC = () => {
         style={{ color: tokens.colorNeutralForeground3 }}
       />
       <p style={{ color: tokens.colorNeutralForeground3, fontSize: 16 }}>
-        Open a Markdown file to get started
+        Open a Markdown file or drag it here to get started
       </p>
       <Button appearance="primary" size="large" onClick={openFile}>
         Open File

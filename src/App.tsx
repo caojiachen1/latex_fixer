@@ -77,6 +77,25 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const handleFileLoad = useCallback(async (path: string) => {
+    if (!path) return;
+    const isMarkdown = path.toLowerCase().endsWith('.md') || 
+                       path.toLowerCase().endsWith('.mdx') || 
+                       path.toLowerCase().endsWith('.markdown');
+    
+    if (!isMarkdown) return;
+
+    try {
+      setLoading(true, 'Loading file...');
+      const file = await readMarkdownFile(path);
+      loadDocument(file.path, file.content);
+    } catch (err) {
+      console.error('Failed to open file:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [loadDocument, setLoading]);
+
   // Auto-parse when content is loaded
   useEffect(() => {
     if (originalContent) {
@@ -90,17 +109,7 @@ function App() {
     (async () => {
       // `listen` returns an UnlistenFn (a function) which we can call to stop listening.
       const un = await listen<string>('open-file', async (event) => {
-        const path = event.payload;
-        if (!path) return;
-        try {
-          setLoading(true, 'Loading file...');
-          const file = await readMarkdownFile(path);
-          loadDocument(file.path, file.content);
-        } catch (err) {
-          console.error('Failed to open file from OS:', err);
-        } finally {
-          setLoading(false);
-        }
+        handleFileLoad(event.payload);
       });
 
       unlisten = un;
@@ -113,7 +122,28 @@ function App() {
         } catch {}
       }
     };
-  }, [loadDocument, setLoading]);
+  }, [handleFileLoad]);
+
+  // Listen for window drag and drop
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    (async () => {
+      const appWindow = getCurrentWindow();
+      const un = await appWindow.onDragDropEvent((event) => {
+        if (event.payload.type === 'drop') {
+          const paths = event.payload.paths;
+          if (paths && paths.length > 0) {
+            handleFileLoad(paths[0]);
+          }
+        }
+      });
+      unlisten = un;
+    })();
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [handleFileLoad]);
 
   // On startup, explicitly ask backend for any startup args in case events were emitted before listener attached
   useEffect(() => {
@@ -122,22 +152,14 @@ function App() {
         const args = await getStartupArgs();
         if (args && args.length > 0) {
           for (const path of args) {
-            try {
-              setLoading(true, 'Loading file...');
-              const file = await readMarkdownFile(path);
-              loadDocument(file.path, file.content);
-            } catch (err) {
-              console.error('Failed to open startup file:', err);
-            } finally {
-              setLoading(false);
-            }
+            handleFileLoad(path);
           }
         }
       } catch (err) {
         console.error('Failed to get startup args:', err);
       }
     })();
-  }, [loadDocument, setLoading]);
+  }, [handleFileLoad]);
 
   return <AppShell />;
 }
