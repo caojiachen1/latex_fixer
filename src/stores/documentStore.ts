@@ -7,6 +7,9 @@ interface DocumentState {
   originalContent: string;
   currentContent: string;
 
+  // Load metadata
+  loadId: number;
+
   // Parsed formulas
   formulas: Formula[];
   errors: Formula[];
@@ -33,16 +36,18 @@ export const useDocumentStore = create<DocumentState>()((set, get) => ({
   formulas: [],
   errors: [],
   fixes: {},
+  loadId: 0,
 
   loadDocument: (path, content) =>
-    set({
+    set((state) => ({
       filePath: path,
       originalContent: content,
       currentContent: content,
       formulas: [],
       errors: [],
       fixes: {},
-    }),
+      loadId: state.loadId + 1,
+    })),
 
   setFormulas: (formulas) =>
     set({
@@ -130,5 +135,6 @@ export const useDocumentStore = create<DocumentState>()((set, get) => ({
       formulas: [],
       errors: [],
       fixes: {},
+      loadId: 0,
     }),
 }));

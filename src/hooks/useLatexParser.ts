@@ -6,6 +6,7 @@ import { useDocumentStore } from '../stores/documentStore';
 export function useLatexParser() {
   const originalContent = useDocumentStore((s) => s.originalContent);
   const setFormulas = useDocumentStore((s) => s.setFormulas);
+  const loadId = useDocumentStore((s) => s.loadId);
 
   const parseAndValidate = useCallback(() => {
     if (!originalContent) return;
@@ -13,7 +14,7 @@ export function useLatexParser() {
     const extracted = extractFormulas(originalContent);
     const validated = validateAllFormulas(extracted);
     setFormulas(validated);
-  }, [originalContent, setFormulas]);
+  }, [loadId, originalContent, setFormulas]);
 
   return { parseAndValidate };
 }
