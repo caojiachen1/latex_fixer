@@ -7,6 +7,7 @@ import { useUIStore } from '../stores/uiStore';
 export function useFileOperations() {
   const loadDocument = useDocumentStore((s) => s.loadDocument);
   const filePath = useDocumentStore((s) => s.filePath);
+  const applyAcceptedFixes = useDocumentStore((s) => s.applyAcceptedFixes);
   const setLoading = useUIStore((s) => s.setLoading);
 
   const openFile = useCallback(async () => {
@@ -53,6 +54,7 @@ export function useFileOperations() {
       if (!savePath) return;
 
       setLoading(true, 'Exporting...');
+      applyAcceptedFixes();
       // Read latest content from the store at call time to avoid stale closure values
       const content = useDocumentStore.getState().currentContent;
       await writeMarkdownFile(savePath, content);
@@ -62,7 +64,7 @@ export function useFileOperations() {
     } finally {
       setLoading(false);
     }
-  }, [filePath, setLoading]);
+  }, [filePath, setLoading, applyAcceptedFixes]);
 
   return { openFile, exportFile };
 }
