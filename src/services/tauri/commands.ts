@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import type { Formula } from '../latex/types';
 
 export interface FileContent {
   path: string;
@@ -24,4 +25,8 @@ export async function proxyLLMRequest(
 
 export async function getStartupArgs(): Promise<string[]> {
   return invoke<string[]>('get_startup_args');
+}
+
+export async function extractFormulas(markdown: string): Promise<Formula[]> {
+  return invoke<Formula[]>('extract_formulas', { markdown });
 }

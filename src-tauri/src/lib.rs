@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{file_ops, llm_proxy};
+use commands::{file_ops, latex_parser, llm_proxy};
 use tauri::Manager;
 use tauri::Emitter;
 use window_vibrancy::apply_mica;
@@ -37,6 +37,7 @@ pub fn run() {
             file_ops::read_markdown_file,
             file_ops::write_markdown_file,
             file_ops::get_startup_args,
+            latex_parser::extract_formulas,
             llm_proxy::proxy_llm_request,
         ])
         .run(tauri::generate_context!())
