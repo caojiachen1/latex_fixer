@@ -5,6 +5,11 @@ use tauri::Manager;
 use tauri::Emitter;
 use window_vibrancy::apply_mica;
 
+#[cfg(target_os = "windows")]
+use windows::Win32::UI::WindowsAndMessaging::*;
+#[cfg(target_os = "windows")]
+use windows::Win32::Foundation::HWND;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -18,17 +23,14 @@ pub fn run() {
                 let _ = apply_mica(&window, None);
                 let _ = window.set_shadow(true);
                 
-                // For Windows 11 Snap Layouts to work with custom title bars,
-                // the maximize button must have the specific ID "maximize-button".
-                // We also ensure the window is ready for the effect.
+                unsafe {
+                    let hwnd = HWND(window.hwnd().unwrap().0 as *mut std::ffi::c_void);
+                    let style = GetWindowLongW(hwnd, GWL_STYLE);
+                    SetWindowLongW(hwnd, GWL_STYLE, style & !(WS_THICKFRAME.0 as i32));
+                }
             }
             
-            // If the app was launched by dragging a file onto the exe, Windows
-            // passes the file path(s) as command-line arguments. Forward any
-            // path arguments to the frontend so the UI can open them.
-            // We skip argv[0] which is the executable path.
             for arg in std::env::args().skip(1) {
-                // emit an "open-file" event with the path string payload
                 let _ = window.emit("open-file", arg.clone());
             }
             Ok(())
